@@ -49,6 +49,8 @@
 
   function openDetail(item) {
     const path = item.dataset_path || `data/embeddings/${item.id}`;
+    const packageUrl =
+      item.package_url || `${DATASET_BASE}${encodeURI(path)}`;
     detail.innerHTML = `
       <p class="badge">${escapeHtml(item.category)}</p>
       <h2>${escapeHtml(item.name)}</h2>
@@ -62,7 +64,8 @@
       <p><b>Method:</b> ${escapeHtml(item.algorithm || "—")}</p>
       <p><b>QC:</b> ${escapeHtml(item.qc_status || "legacy package")}</p>
       <p><b>License:</b> ${escapeHtml(item.license || "see package metadata")}</p>
-      <a class="button primary" href="${DATASET_BASE}${encodeURI(path)}" target="_blank" rel="noopener">Open package files</a>`;
+      <p><b>Source Dataset:</b> ${escapeHtml(item.source_dataset || "—")}</p>
+      <a class="button primary" href="${escapeHtml(packageUrl)}" target="_blank" rel="noopener noreferrer">Open package files</a>`;
     dialog.showModal();
   }
 
