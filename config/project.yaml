@@ -3,6 +3,10 @@ github_repository: DanielTabaresLopez/Gene-Embeddings-Contributions
 hf_dataset_id: embeddingsSSRF/gene_embeddings_staging
 hf_space_id: embeddingsSSRF/Gene-Embeddings-Staging
 
+core_dataset_id: embeddingsSSRF/gene_embeddings
+core_dataset_revision: 326b257a20e73df337ece40bb82401e277851f5b
+core_expected_count: 68
+
 dataset_package_root: data/embeddings
 dataset_registry_file: data/community_registry.json
 dataset_community_manifest_file: data/community_manifest.csv

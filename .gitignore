@@ -11,3 +11,7 @@ dist/
 
 # Python package installation metadata
 *.egg-info/
+
+# Generated Dataset audit and catalog reports
+reports/*.json
+reports/*.txt
