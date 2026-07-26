@@ -116,31 +116,86 @@ jobs:
           python -m pip install -e .
           python -m pip install "huggingface_hub>=1.19.0"
 
-      - name: Build frozen core catalog
-        env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
+      - name: Prepare reviewed core catalog
         run: |
           mkdir -p dist-space current-space reports
           cp -a space/. dist-space/
+          cp space/catalog.json dist-space/core_catalog.json
 
-          CORE_DATASET_ID="$(
-            python -c 'import yaml; print(yaml.safe_load(open("config/project.yaml"))["core_dataset_id"])'
-          )"
+          python - <<'PYCODE'
+          from pathlib import Path
+          import json
+          import yaml
 
-          CORE_REVISION="$(
-            python -c 'import yaml; print(yaml.safe_load(open("config/project.yaml"))["core_dataset_revision"])'
-          )"
+          catalog = json.loads(
+              Path("dist-space/core_catalog.json").read_text(
+                  encoding="utf-8"
+              )
+          )
 
-          CORE_COUNT="$(
-            python -c 'import yaml; print(yaml.safe_load(open("config/project.yaml"))["core_expected_count"])'
-          )"
+          project = yaml.safe_load(
+              Path("config/project.yaml").read_text(
+                  encoding="utf-8"
+              )
+          )
 
-          python scripts/build_core_catalog.py \
-            --dataset-id "$CORE_DATASET_ID" \
-            --revision "$CORE_REVISION" \
-            --expected-count "$CORE_COUNT" \
-            --output dist-space/core_catalog.json \
-            --report reports/core_catalog_build.json
+          expected_count = int(project["core_expected_count"])
+          expected_dataset = project["core_dataset_id"]
+          expected_revision = project["core_dataset_revision"]
+
+          errors = []
+          ids = []
+
+          if not isinstance(catalog, list):
+              errors.append("Catalog must contain a JSON list.")
+          else:
+              for entry in catalog:
+                  embedding_id = entry.get("id")
+                  ids.append(embedding_id)
+
+                  if entry.get("community_contribution") is not False:
+                      errors.append(
+                          f"{embedding_id}: expected a core catalog entry"
+                      )
+
+                  if entry.get("source_dataset") != expected_dataset:
+                      errors.append(
+                          f"{embedding_id}: incorrect source Dataset"
+                      )
+
+                  if entry.get("source_revision") != expected_revision:
+                      errors.append(
+                          f"{embedding_id}: incorrect source revision"
+                      )
+
+                  if not entry.get("package_url"):
+                      errors.append(
+                          f"{embedding_id}: package URL is missing"
+                      )
+
+          if len(catalog) != expected_count:
+              errors.append(
+                  f"Expected {expected_count} entries, "
+                  f"found {len(catalog)}"
+              )
+
+          if len(ids) != len(set(ids)):
+              errors.append("Duplicate embedding IDs detected.")
+
+          print("Reviewed core entries:", len(catalog))
+          print("Unique embedding IDs:", len(set(ids)))
+          print("Source Dataset:", expected_dataset)
+          print("Source revision:", expected_revision)
+          print("Validation errors:", len(errors))
+
+          for error in errors:
+              print(" -", error)
+
+          if errors:
+              raise SystemExit(1)
+
+          print("Reviewed core catalog validation: PASS")
+          PYCODE
 
       - name: Download current Space catalog
         env:
