@@ -1,75 +1,66 @@
-# Manually reviewed corrections for core catalog entries.
-#
-# These values override fields inferred automatically from metadata.json.
-
 alphagenome_tss1mb_regulatory_tracksummary_pca256:
   category: Regulatory
   category_source: manual
   modality: regulatory genomics / AlphaGenome regulatory-track summary
-  description: >-
-    Gene-level regulatory representation derived from AlphaGenome track-summary
+  description: Gene-level regulatory representation derived from AlphaGenome track-summary
     predictions around the transcription start site and reduced to 256 dimensions.
-
 depmap_crispr_gene_effect_pca256:
   category: Functional Genomics
   category_source: manual
   modality: functional genomics / CRISPR dependency
-  description: >-
-    Gene representation derived from DepMap CRISPR gene-effect profiles across
+  description: Gene representation derived from DepMap CRISPR gene-effect profiles across
     cancer cell-line models, standardized and reduced to 256 dimensions using PCA.
-
 frogs_archs4_256:
   category: Functional Genomics
   category_source: manual
   modality: functional gene representation / ARCHS4 expression
-  description: >-
-    FRoGS gene representation incorporating functional relationships learned
-    using large-scale ARCHS4 gene-expression information.
-
+  description: FRoGS gene representation incorporating functional relationships learned using
+    large-scale ARCHS4 gene-expression information.
 helix_mrna_full_transcript:
   category: RNA
   category_source: manual
   modality: RNA language model / mature mRNA transcript
-  description: >-
-    Gene-level mature-transcript representation generated with Helix-mRNA and
-    mean-pooled across non-special sequence tokens.
-
+  description: Gene-level mature-transcript representation generated with Helix-mRNA and mean-pooled
+    across non-special sequence tokens.
 hyenadna_medium_160k_cds:
   category: DNA
   category_source: manual
   modality: DNA language model / canonical coding sequence
-  description: >-
-    Gene-level canonical-CDS representation generated with the HyenaDNA medium
+  description: Gene-level canonical-CDS representation generated with the HyenaDNA medium
     160k sequence-length model.
-
 mahi_global:
   category: Multimodal
   category_source: manual
   modality: multimodal tissue-aware graph representation / global context
-  description: >-
-    Global-context Mahi gene representation integrating regulatory, protein and
+  description: Global-context Mahi gene representation integrating regulatory, protein and
     network-derived molecular information.
-
 nt_v2_500m_multispecies_cds:
   category: DNA
   category_source: manual
   modality: DNA language model / canonical coding sequence
-  description: >-
-    Gene-level canonical-CDS representation generated with the 500M-parameter
-    multispecies Nucleotide Transformer v2 checkpoint.
-
+  description: Gene-level canonical-CDS representation generated with the 500M-parameter multispecies
+    Nucleotide Transformer v2 checkpoint.
 orthrus_base_4track_full_transcript:
   category: RNA
   category_source: manual
   modality: RNA foundation model / mature mRNA transcript
-  description: >-
-    Mature-transcript representation generated with the Orthrus base four-track
+  description: Mature-transcript representation generated with the Orthrus base four-track
     RNA foundation model.
-
 rnafm_full_transcript:
   category: RNA
   category_source: manual
   modality: RNA language model / mature mRNA transcript
-  description: >-
-    Mature-transcript representation generated from the final layer of RNA-FM
-    using length-weighted token pooling.
+  description: Mature-transcript representation generated from the final layer of RNA-FM using
+    length-weighted token pooling.
+mahi_all_contexts_mean:
+  category: Multimodal
+  category_source: manual
+  modality: multimodal tissue-aware graph representation / mean across non-global contexts
+  description: Mahi gene representation formed by averaging embeddings across all available
+    non-global tissue and cell contexts.
+scgpt_pancancer:
+  category: Single-cell
+  category_source: manual
+  modality: single-cell transcriptomic foundation model / pan-cancer gene-token embedding
+  description: Gene-token representation derived from a pan-cancer scGPT single-cell transcriptomic
+    model.
