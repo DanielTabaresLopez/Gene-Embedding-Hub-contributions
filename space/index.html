@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gene Embeddings</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">Unified human gene representations</p>
+      <h1>Gene Embeddings</h1>
+      <p class="lead">Browse standardized gene-level representations across sequence, expression, literature, pathway, network, regulatory, knowledge-graph, and single-cell modalities.</p>
+      <div class="actions">
+        <a class="button primary" id="contribute-link" href="#">Contribute an embedding</a>
+        <a class="button" href="https://huggingface.co/datasets/embeddingsSSRF/gene_embeddings" target="_blank" rel="noopener">Open Dataset</a>
+      </div>
+      <p class="notice">Community contributions are automatically checked for compliance with the technical policy. Inclusion is not independent scientific or legal endorsement.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="stats" aria-label="Catalog summary">
+      <article><strong id="stat-count">—</strong><span>embedding sets</span></article>
+      <article><strong id="stat-genes">—</strong><span>maximum genes</span></article>
+      <article><strong id="stat-dims">—</strong><span>dimension range</span></article>
+    </section>
+
+    <section class="controls">
+      <input id="search" type="search" placeholder="Search names, modalities, or methods" aria-label="Search catalog" />
+      <select id="category" aria-label="Filter by category"><option value="All">All categories</option></select>
+    </section>
+
+    <p id="result-count" class="result-count"></p>
+    <section id="grid" class="grid" aria-live="polite"></section>
+
+    <section class="contribute" id="contribute">
+      <h2>Automatic contribution workflow</h2>
+      <ol>
+        <li>Put <code>embeddings.npz</code>, <code>genes.tsv</code>, <code>metadata.json</code>, and <code>README.md</code> in a public Hugging Face Dataset.</li>
+        <li>Freeze the candidate at a full commit SHA.</li>
+        <li>Add one submission YAML through a GitHub Pull Request.</li>
+        <li>GitHub validates the frozen package. A strict PASS is merged and published automatically.</li>
+      </ol>
+      <a class="button primary" id="contribute-link-bottom" href="#">Open contribution instructions</a>
+    </section>
+  </main>
+
+  <dialog id="detail-dialog">
+    <button id="close-detail" class="close" aria-label="Close">×</button>
+    <div id="detail-content"></div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+name: Validate and auto-accept candidate
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main]
+    paths:
+      - "submissions/*.yaml"
+      - "submissions/*.yml"
+
+# This privileged workflow is safe only because it never checks out or executes
+# contributor code. It reads one size-limited YAML file as data and runs trusted
+# validator code from the base branch.
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: candidate-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  validate-and-merge:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+
+    steps:
+      - name: Check out trusted base branch only
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install trusted validator
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+
+      - name: Fetch the only proposed submission file as untrusted data
+        id: proposed
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+
+          files_json="$(gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files")"
+          count="$(jq 'length' <<< "$files_json")"
+          test "$count" -eq 1 || { echo "PR must change exactly one file"; exit 1; }
+
+          file="$(jq -r '.[0].filename' <<< "$files_json")"
+          status="$(jq -r '.[0].status' <<< "$files_json")"
+          additions="$(jq -r '.[0].additions' <<< "$files_json")"
+          deletions="$(jq -r '.[0].deletions' <<< "$files_json")"
+
+          [[ "$file" =~ ^submissions/[A-Za-z0-9._-]+\.ya?ml$ ]] || { echo "Invalid path: $file"; exit 1; }
+          test "$status" = "added" || { echo "Submission file must be newly added"; exit 1; }
+          test "$deletions" -eq 0 || { echo "Submission must not delete content"; exit 1; }
+          test "$additions" -le 300 || { echo "Submission YAML is unexpectedly large"; exit 1; }
+
+          gh api \
+            -H "Accept: application/vnd.github.raw+json" \
+            "repos/$HEAD_REPO/contents/$file?ref=$HEAD_SHA" \
+            > proposed_submission.yaml
+
+          bytes="$(wc -c < proposed_submission.yaml)"
+          test "$bytes" -le 65536 || { echo "Submission YAML exceeds 64 KiB"; exit 1; }
+
+          echo "file=$file" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Run strict validation
+        id: validation
+        shell: bash
+        run: |
+          set +e
+          python -m gene_registry.cli validate \
+            --submission proposed_submission.yaml \
+            --policy config/policy.yaml \
+            --master-genes reference/master_gene_ids.txt \
+            --schema-dir schemas \
+            --output-dir validation-output
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Comment validation report
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ -f validation-output/validation_summary.md ]; then
+            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file validation-output/validation_summary.md
+            cat validation-output/validation_summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body "Automatic validation could not produce a report. The Pull Request was not accepted."
+          fi
+
+      - name: Stop when validation did not strictly pass
+        if: steps.validation.outputs.exit_code != '0'
+        run: exit 1
+
+      - name: Reconfirm the PR did not change after validation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          VALIDATED_SHA: ${{ steps.proposed.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          current_sha="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" --jq '.head.sha')"
+          test "$current_sha" = "$VALIDATED_SHA" || { echo "PR changed after validation"; exit 1; }
+
+      - name: Squash-merge the validated Pull Request
+        id: merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          VALIDATED_SHA: ${{ steps.proposed.outputs.head_sha }}
+        run: |
+          set -euo pipefail
+          gh api \
+            --method PUT \
+            "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/merge" \
+            -f merge_method=squash \
+            -f sha="$VALIDATED_SHA" \
+            > merge-result.json
+          test "$(jq -r '.merged' merge-result.json)" = "true" || { cat merge-result.json; exit 1; }
+          merge_sha="$(jq -r '.sha' merge-result.json)"
+          echo "merge_sha=$merge_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch trusted publication workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUBMISSION_FILE: ${{ steps.proposed.outputs.file }}
+          ACCEPTED_COMMIT: ${{ steps.merge.outputs.merge_sha }}
+        run: |
+          gh workflow run publish.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f mode=submission \
+            -f submission_file="$SUBMISSION_FILE" \
+            -f accepted_commit="$ACCEPTED_COMMIT"

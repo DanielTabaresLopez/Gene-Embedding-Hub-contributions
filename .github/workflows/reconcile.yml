@@ -1,0 +1,45 @@
+name: Reconcile accepted and published submissions
+
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+      - name: Find first merged submission missing from the HF registry
+        id: missing
+        run: |
+          python scripts/find_unpublished.py \
+            --project config/project.yaml \
+            --submissions submissions \
+            --github-output "$GITHUB_OUTPUT"
+      - name: Dispatch the single trusted HF writer
+        if: steps.missing.outputs.submission_file != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run publish.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f mode=submission \
+            -f submission_file="${{ steps.missing.outputs.submission_file }}" \
+            -f accepted_commit=main

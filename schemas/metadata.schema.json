@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Gene embedding package metadata",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["embedding_id", "display_name", "species", "broad_modality", "detailed_modality", "original_method", "model_checkpoint", "embedding_generated_by", "input_data_source", "input_data_release", "pooling_strategy", "original_identifier_type", "mapping_method", "source_license", "redistribution_allowed"],
+  "properties": {
+    "embedding_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{2,79}$"},
+    "display_name": {"type": "string", "minLength": 3},
+    "species": {"type": "string", "minLength": 2},
+    "broad_modality": {"type": "string", "minLength": 2},
+    "detailed_modality": {"type": "string", "minLength": 2},
+    "original_method": {"type": "string", "minLength": 2},
+    "model_checkpoint": {"type": "string", "minLength": 1},
+    "embedding_generated_by": {"type": "string", "minLength": 2},
+    "input_data_source": {"type": "string", "minLength": 2},
+    "input_data_release": {"type": "string", "minLength": 1},
+    "pooling_strategy": {"type": "string", "minLength": 2},
+    "original_identifier_type": {"type": "string", "minLength": 2},
+    "mapping_method": {"type": "string", "minLength": 5},
+    "source_license": {"type": "string", "minLength": 2},
+    "redistribution_allowed": {"const": true},
+    "source_url": {"type": "string"},
+    "publication": {"type": "string"}
+  }
+}

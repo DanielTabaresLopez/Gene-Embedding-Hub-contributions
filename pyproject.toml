@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gene-embedding-registry"
+version = "0.1.0"
+description = "Automatic validation and publication for a Hugging Face gene embedding library"
+requires-python = ">=3.11"
+dependencies = [
+  "huggingface_hub>=0.33.5",
+  "jsonschema>=4.23",
+  "numpy>=1.26,<3",
+  "pandas>=2.2,<3",
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+[tool.setuptools.packages.find]
+include = ["gene_registry*"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]

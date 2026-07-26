@@ -1,0 +1,47 @@
+schema_version: 1
+
+embedding_id: example_embedding_v1
+display_name: Example Gene Embedding v1
+
+candidate:
+  repo_id: contributor-name/gene-embedding-candidate
+  repo_type: dataset
+  revision: 0123456789abcdef0123456789abcdef01234567
+  path: candidate_embedding
+
+contributor:
+  name: Example Researcher
+  email: researcher@example.org
+  affiliation: Example University
+
+scientific:
+  broad_modality: protein_sequence
+  detailed_modality: protein language model
+  original_method: ExamplePLM
+  model_checkpoint: example-checkpoint-v1
+  source_publication: ""
+  description: >-
+    One fixed protein-sequence-derived vector per human gene, generated from
+    the stated checkpoint and pooled over amino-acid token representations.
+
+provenance:
+  embedding_generated_by: contributor
+  input_data_source: UniProt human reference proteome
+  input_data_release: "2026_01"
+  species: Homo sapiens
+  pooling_strategy: mean token pooling
+  identifier_before_mapping: UniProt accession
+  mapping_method: unique reviewed UniProt accession to Ensembl gene mapping
+
+licensing:
+  source_license: cc-by-4.0
+  redistribution_allowed: true
+  terms_url: https://example.org/license
+
+attestations:
+  information_is_accurate: true
+  rights_to_redistribute: true
+  no_sensitive_human_data: true
+  no_patient_level_data: true
+  source_terms_reviewed: true
+  acceptance_of_automatic_checks: true

@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Gene embedding submission",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "embedding_id", "display_name", "candidate", "contributor", "scientific", "provenance", "licensing", "attestations"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "embedding_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{2,79}$"},
+    "display_name": {"type": "string", "minLength": 3, "maxLength": 160},
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repo_id", "repo_type", "revision", "path"],
+      "properties": {
+        "repo_id": {"type": "string", "pattern": "^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$"},
+        "repo_type": {"const": "dataset"},
+        "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "path": {"type": "string", "pattern": "^(\\.|[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*)$"}
+      }
+    },
+    "contributor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "email", "affiliation"],
+      "properties": {
+        "name": {"type": "string", "minLength": 2},
+        "email": {"type": "string", "format": "email"},
+        "affiliation": {"type": "string", "minLength": 2}
+      }
+    },
+    "scientific": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["broad_modality", "detailed_modality", "original_method", "model_checkpoint", "description"],
+      "properties": {
+        "broad_modality": {"type": "string"},
+        "detailed_modality": {"type": "string", "minLength": 2},
+        "original_method": {"type": "string", "minLength": 2},
+        "model_checkpoint": {"type": "string", "minLength": 1},
+        "source_publication": {"type": "string"},
+        "description": {"type": "string", "minLength": 30, "maxLength": 2000}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["embedding_generated_by", "input_data_source", "input_data_release", "species", "pooling_strategy", "identifier_before_mapping", "mapping_method"],
+      "properties": {
+        "embedding_generated_by": {"type": "string", "minLength": 2},
+        "input_data_source": {"type": "string", "minLength": 2},
+        "input_data_release": {"type": "string", "minLength": 1},
+        "species": {"type": "string", "minLength": 2},
+        "pooling_strategy": {"type": "string", "minLength": 2},
+        "identifier_before_mapping": {"type": "string", "minLength": 2},
+        "mapping_method": {"type": "string", "minLength": 5}
+      }
+    },
+    "licensing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_license", "redistribution_allowed", "terms_url"],
+      "properties": {
+        "source_license": {"type": "string", "minLength": 2},
+        "redistribution_allowed": {"const": true},
+        "terms_url": {"type": "string", "minLength": 5}
+      }
+    },
+    "attestations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["information_is_accurate", "rights_to_redistribute", "no_sensitive_human_data", "no_patient_level_data", "source_terms_reviewed", "acceptance_of_automatic_checks"],
+      "properties": {
+        "information_is_accurate": {"const": true},
+        "rights_to_redistribute": {"const": true},
+        "no_sensitive_human_data": {"const": true},
+        "no_patient_level_data": {"const": true},
+        "source_terms_reviewed": {"const": true},
+        "acceptance_of_automatic_checks": {"const": true}
+      }
+    }
+  }
+}

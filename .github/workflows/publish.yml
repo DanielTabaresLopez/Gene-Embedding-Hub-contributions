@@ -1,0 +1,130 @@
+name: Publish to Hugging Face
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Publication mode
+        required: true
+        type: choice
+        options:
+          - submission
+          - bootstrap_space
+      submission_file:
+        description: Merged submissions/*.yaml file (submission mode)
+        required: false
+        type: string
+      accepted_commit:
+        description: Trusted Git commit to publish from
+        required: true
+        default: main
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish-gene-embedding-library
+  cancel-in-progress: false
+
+jobs:
+  publish-submission:
+    if: inputs.mode == 'submission'
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Validate workflow inputs
+        env:
+          SUBMISSION_FILE: ${{ inputs.submission_file }}
+          ACCEPTED_COMMIT: ${{ inputs.accepted_commit }}
+        run: |
+          [[ "$SUBMISSION_FILE" =~ ^submissions/[A-Za-z0-9._-]+\.ya?ml$ ]]
+          [[ "$ACCEPTED_COMMIT" =~ ^[0-9a-f]{40}$|^main$ ]]
+
+      - name: Check out trusted accepted commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.accepted_commit }}
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install release tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install "huggingface_hub>=1.19.0"
+
+      - name: Revalidate and prepare Dataset and Space payloads
+        run: |
+          python scripts/prepare_release.py \
+            --submission "${{ inputs.submission_file }}" \
+            --project config/project.yaml \
+            --policy config/policy.yaml \
+            --master-genes reference/master_gene_ids.txt \
+            --schema-dir schemas \
+            --space-source space \
+            --output-dir dist
+
+      - name: Publish package and registry to the Hugging Face Dataset
+        env:
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
+        run: |
+          hf upload \
+            embeddingsSSRF/gene_embeddings \
+            dist/dataset \
+            . \
+            --repo-type dataset \
+            --commit-message "Publish ${{ inputs.submission_file }}"
+
+      - name: Publish regenerated Static Space
+        env:
+          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings
+        run: |
+          hf upload \
+            embeddingsSSRF/Gene-Embeddings \
+            dist/space \
+            . \
+            --repo-type space \
+            --commit-message "Update catalog for ${{ inputs.submission_file }}"
+
+  bootstrap-space:
+    if: inputs.mode == 'bootstrap_space'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.accepted_commit }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install HF CLI
+        run: python -m pip install "huggingface_hub>=1.19.0"
+      - name: Preserve the current remote catalog and prepare static files
+        run: |
+          mkdir -p dist-space current-space
+          cp -a space/. dist-space/
+          hf download \
+            embeddingsSSRF/Gene-Embeddings \
+            catalog.json \
+            --repo-type space \
+            --local-dir current-space || true
+          if [ -f current-space/catalog.json ]; then
+            cp current-space/catalog.json dist-space/catalog.json
+          fi
+      - name: Publish the static interface without replacing its catalog
+        env:
+          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings
+        run: |
+          hf upload \
+            embeddingsSSRF/Gene-Embeddings \
+            dist-space \
+            . \
+            --repo-type space \
+            --commit-message "Bootstrap automatic contribution interface"
