@@ -1,7 +1,7 @@
 # Replace these values before enabling production publication.
 github_repository: DanielTabaresLopez/Gene-Embeddings-Contributions
-hf_dataset_id: embeddingsSSRF/gene_embeddings
-hf_space_id: embeddingsSSRF/Gene-Embeddings
+hf_dataset_id: embeddingsSSRF/gene_embeddings_staging
+hf_space_id: embeddingsSSRF/Gene-Embeddings-Staging
 
 dataset_package_root: data/embeddings
 dataset_registry_file: data/community_registry.json

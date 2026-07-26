@@ -1,7 +1,7 @@
 (() => {
   "use strict";
   const GITHUB_CONTRIBUTING = "https://github.com/DanielTabaresLopez/Gene-Embeddings-Contributions/blob/main/CONTRIBUTING.md";
-  const DATASET_BASE = "https://huggingface.co/datasets/embeddingsSSRF/gene_embeddings/tree/main/";
+  const DATASET_BASE = "https://huggingface.co/datasets/embeddingsSSRF/gene_embeddings_staging/tree/main/";
 
   const grid = document.getElementById("grid");
   const search = document.getElementById("search");

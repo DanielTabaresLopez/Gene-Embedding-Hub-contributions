@@ -72,10 +72,10 @@ jobs:
 
       - name: Publish package and registry to the Hugging Face Dataset
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
         run: |
           hf upload \
-            embeddingsSSRF/gene_embeddings \
+            embeddingsSSRF/gene_embeddings_staging \
             dist/dataset \
             . \
             --repo-type dataset \
@@ -83,10 +83,10 @@ jobs:
 
       - name: Publish regenerated Static Space
         env:
-          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings
+          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
         run: |
           hf upload \
-            embeddingsSSRF/Gene-Embeddings \
+            embeddingsSSRF/Gene-Embeddings-Staging \
             dist/space \
             . \
             --repo-type space \
@@ -111,7 +111,7 @@ jobs:
           mkdir -p dist-space current-space
           cp -a space/. dist-space/
           hf download \
-            embeddingsSSRF/Gene-Embeddings \
+            embeddingsSSRF/Gene-Embeddings-Staging \
             catalog.json \
             --repo-type space \
             --local-dir current-space || true
@@ -120,10 +120,10 @@ jobs:
           fi
       - name: Publish the static interface without replacing its catalog
         env:
-          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings
+          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
         run: |
           hf upload \
-            embeddingsSSRF/Gene-Embeddings \
+            embeddingsSSRF/Gene-Embeddings-Staging \
             dist-space \
             . \
             --repo-type space \

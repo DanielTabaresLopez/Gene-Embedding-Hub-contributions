@@ -1,5 +1,5 @@
 ---
-title: Gene Embeddings
+title: Gene Embeddings Staging
 emoji: 🧬
 colorFrom: blue
 colorTo: indigo
@@ -7,9 +7,9 @@ sdk: static
 app_file: index.html
 pinned: false
 datasets:
-  - embeddingsSSRF/gene_embeddings
+  - embeddingsSSRF/gene_embeddings_staging
 ---
 
-# Gene Embeddings Catalog
+# Gene Embeddings Staging Catalog
 
 A static catalog of approved gene embeddings. Community additions are automatically validated against the published technical policy before appearing here.
