@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "gene-embedding-registry"
 version = "0.1.0"
 description = "Automatic validation and publication for a Hugging Face gene embedding library"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
   "huggingface_hub>=0.33.5",
   "jsonschema>=4.23",
