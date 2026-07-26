@@ -117,6 +117,8 @@ jobs:
           python -m pip install "huggingface_hub>=1.19.0"
 
       - name: Build frozen core catalog
+        env:
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
         run: |
           mkdir -p dist-space current-space reports
           cp -a space/. dist-space/
@@ -141,6 +143,8 @@ jobs:
             --report reports/core_catalog_build.json
 
       - name: Download current Space catalog
+        env:
+          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
         run: |
           hf download \
             embeddingsSSRF/Gene-Embeddings-Staging \
