@@ -18,7 +18,7 @@ Required package contract:
 - The array is a two-dimensional `float32` matrix.
 - `genes.tsv` contains a unique, non-empty `ensembl_gene_id` column.
 - Rows of `genes.tsv` correspond exactly to rows of `embeddings`.
-- The repository is public while validation runs.
+- The repository must remain public during validation and after acceptance.
 
 ## 2. Freeze the candidate
 
@@ -47,3 +47,14 @@ This pre-check is optional. GitHub reruns the validator independently.
 5. Open a Pull Request to `main`.
 
 The trusted workflow reads the YAML as data, downloads the frozen Hugging Face package, and applies the automatic acceptance policy. A strict PASS is merged and published automatically. A failure remains open for correction.
+
+## 5. Community package storage and availability
+
+Accepted community matrices remain in the contributor-owned public Hugging Face
+Dataset at the submitted immutable commit SHA. The central library stores the
+catalog entry, provenance, checksums and validation reports, but does not create
+a second copy of `embeddings.npz`.
+
+The submitted Dataset and immutable revision must remain publicly accessible
+after acceptance. An entry may be marked unavailable or removed from the active
+catalog if its source package is later deleted or made private.

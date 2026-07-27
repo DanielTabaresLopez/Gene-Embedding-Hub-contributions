@@ -58,7 +58,27 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .
-          python -m pip install "huggingface_hub>=1.19.0"
+          python -m pip install "huggingface_hub>=1.19.0" hf_xet
+
+      - name: Download current community registry
+        env:
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+        run: |
+          python scripts/fetch_optional_hf_file.py \
+            --repo-id embeddingsSSRF/gene_embeddings_staging \
+            --repo-type dataset \
+            --filename data/community_registry.json \
+            --output current-state/community_registry.json
+
+      - name: Download current Space catalog
+        env:
+          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
+        run: |
+          python scripts/fetch_optional_hf_file.py \
+            --repo-id embeddingsSSRF/Gene-Embeddings-Staging \
+            --repo-type space \
+            --filename catalog.json \
+            --output current-state/catalog.json
 
       - name: Revalidate and prepare Dataset and Space payloads
         run: |
@@ -69,6 +89,8 @@ jobs:
             --master-genes reference/master_gene_ids.txt \
             --schema-dir schemas \
             --space-source space \
+            --existing-registry current-state/community_registry.json \
+            --existing-catalog current-state/catalog.json \
             --output-dir dist
 
       - name: Publish package and registry to the Hugging Face Dataset
@@ -114,7 +136,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .
-          python -m pip install "huggingface_hub>=1.19.0"
+          python -m pip install "huggingface_hub>=1.19.0" hf_xet
 
       - name: Prepare reviewed core catalog
         run: |
@@ -241,7 +263,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install HF CLI
-        run: python -m pip install "huggingface_hub>=1.19.0"
+        run: python -m pip install "huggingface_hub>=1.19.0" hf_xet
       - name: Preserve the current remote catalog and prepare static files
         run: |
           mkdir -p dist-space current-space
