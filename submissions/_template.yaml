@@ -15,7 +15,9 @@ contributor:
   affiliation: Example University
 
 scientific:
-  broad_modality: protein_sequence
+  # Contributor-defined catalog category, 2-80 characters.
+  # Examples: Protein, Regulatory, Spatial Omics.
+  broad_modality: Protein
   detailed_modality: protein language model
   original_method: ExamplePLM
   model_checkpoint: example-checkpoint-v1
