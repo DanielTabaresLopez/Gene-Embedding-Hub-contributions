@@ -31,11 +31,17 @@ jobs:
         env:
           HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
         run: |
-          python scripts/fetch_optional_hf_file.py \
-            --repo-id embeddingsSSRF/gene_embeddings_staging \
+          mkdir -p current-state/registry
+
+          hf download \
+            embeddingsSSRF/gene_embeddings_staging \
+            data/community_registry.json \
             --repo-type dataset \
-            --filename data/community_registry.json \
-            --output current-state/community_registry.json
+            --local-dir current-state/registry
+
+          cp \
+            current-state/registry/data/community_registry.json \
+            current-state/community_registry.json
 
       - name: Find first merged submission missing from the HF registry
         id: missing
