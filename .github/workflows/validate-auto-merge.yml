@@ -7,6 +7,8 @@ on:
     paths:
       - "submissions/*.yaml"
       - "submissions/*.yml"
+      - "!submissions/_template.yaml"
+      - "!submissions/_template.yml"
 
 # This privileged workflow is safe only because it never checks out or executes
 # contributor code. It reads one size-limited YAML file as data and runs trusted
