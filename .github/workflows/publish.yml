@@ -64,21 +64,33 @@ jobs:
         env:
           HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
         run: |
-          python scripts/fetch_optional_hf_file.py \
-            --repo-id embeddingsSSRF/gene_embeddings_staging \
+          mkdir -p current-state/registry
+
+          hf download \
+            embeddingsSSRF/gene_embeddings_staging \
+            data/community_registry.json \
             --repo-type dataset \
-            --filename data/community_registry.json \
-            --output current-state/community_registry.json
+            --local-dir current-state/registry
+
+          cp \
+            current-state/registry/data/community_registry.json \
+            current-state/community_registry.json
 
       - name: Download current Space catalog
         env:
           HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
         run: |
-          python scripts/fetch_optional_hf_file.py \
-            --repo-id embeddingsSSRF/Gene-Embeddings-Staging \
+          mkdir -p current-state/space
+
+          hf download \
+            embeddingsSSRF/Gene-Embeddings-Staging \
+            catalog.json \
             --repo-type space \
-            --filename catalog.json \
-            --output current-state/catalog.json
+            --local-dir current-state/space
+
+          cp \
+            current-state/space/catalog.json \
+            current-state/catalog.json
 
       - name: Revalidate and prepare Dataset and Space payloads
         run: |
