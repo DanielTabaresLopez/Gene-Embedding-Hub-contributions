@@ -29,21 +29,6 @@ identifiers:
 metadata:
   allowed_species:
     - Homo sapiens
-  allowed_modalities:
-    - protein_sequence
-    - dna_sequence
-    - regulatory_dna
-    - mrna_sequence
-    - expression_bulk
-    - expression_single_cell
-    - perturbation
-    - literature_text
-    - ppi_network
-    - regulatory_network
-    - go_pathway
-    - knowledge_graph
-    - multimodal
-    - other
   allowed_licenses:
     - apache-2.0
     - bsd-3-clause

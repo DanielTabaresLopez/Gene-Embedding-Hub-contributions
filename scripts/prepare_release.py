@@ -194,6 +194,10 @@ def main() -> int:
 
         source_reference = {
             "embedding_id": embedding_id,
+            "contributor_name": submission["contributor"]["name"],
+            "contributor_affiliation": submission[
+                "contributor"
+            ]["affiliation"],
             "storage_mode": storage_mode,
             "repo_id": candidate_repo,
             "repo_type": candidate_repo_type,
@@ -235,6 +239,10 @@ def main() -> int:
         registry_entry = {
             "embedding_id": embedding_id,
             "display_name": submission["display_name"],
+            "contributor_name": submission["contributor"]["name"],
+            "contributor_affiliation": submission[
+                "contributor"
+            ]["affiliation"],
             "candidate_repo": candidate_repo,
             "candidate_repo_type": candidate_repo_type,
             "candidate_revision": candidate_revision,
@@ -330,6 +338,10 @@ def main() -> int:
             {
                 "id": embedding_id,
                 "name": submission["display_name"],
+                "contributor_name": submission["contributor"]["name"],
+                "contributor_affiliation": submission[
+                    "contributor"
+                ]["affiliation"],
                 "category": submission[
                     "scientific"
                 ]["broad_modality"],

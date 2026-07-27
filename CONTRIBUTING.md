@@ -20,6 +20,8 @@ Required package contract:
 - Rows of `genes.tsv` correspond exactly to rows of `embeddings`.
 - The repository must remain public during validation and after acceptance.
 
+- `broad_modality` is a contributor-defined catalog category of 2–80 characters. New category names are accepted automatically, but the value must match exactly between the submission YAML and `metadata.json`.
+
 ## 2. Freeze the candidate
 
 Open the candidate Dataset's **Files and versions** page and copy its full 40-character commit SHA. Do not submit `main`.

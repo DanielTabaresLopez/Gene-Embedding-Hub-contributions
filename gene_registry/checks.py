@@ -84,12 +84,53 @@ def validate_package(
             {"expected": expected, "actual": actual},
         )
 
-    allowed_species = set(policy["metadata"]["allowed_species"])
-    allowed_modalities = set(policy["metadata"]["allowed_modalities"])
-    allowed_licenses = {x.lower() for x in policy["metadata"]["allowed_licenses"]}
-    result.add("policy.species", _status(metadata["species"] in allowed_species), "Species is allowed", metadata["species"])
-    result.add("policy.modality", _status(metadata["broad_modality"] in allowed_modalities), "Broad modality is allowed", metadata["broad_modality"])
-    result.add("policy.license", _status(metadata["source_license"].lower() in allowed_licenses), "License is on the automatic allowlist", metadata["source_license"])
+    allowed_species = set(
+        policy["metadata"]["allowed_species"]
+    )
+
+    allowed_licenses = {
+        value.lower()
+        for value in policy["metadata"]["allowed_licenses"]
+    }
+
+    result.add(
+        "policy.species",
+        _status(metadata["species"] in allowed_species),
+        "Species is allowed",
+        metadata["species"],
+    )
+
+    broad_modality = metadata["broad_modality"]
+    normalized_modality = broad_modality.strip()
+
+    valid_modality = (
+        broad_modality == normalized_modality
+        and 2 <= len(normalized_modality) <= 80
+        and all(
+            character.isprintable()
+            for character in broad_modality
+        )
+    )
+
+    result.add(
+        "policy.modality",
+        _status(valid_modality),
+        (
+            "Broad modality is a valid "
+            "contributor-defined category"
+        ),
+        broad_modality,
+    )
+
+    result.add(
+        "policy.license",
+        _status(
+            metadata["source_license"].lower()
+            in allowed_licenses
+        ),
+        "License is on the automatic allowlist",
+        metadata["source_license"],
+    )
 
     genes = pd.read_csv(package_dir / "genes.tsv", sep="\t", dtype=str, keep_default_na=False)
     gene_column = policy["identifiers"]["required_column"]

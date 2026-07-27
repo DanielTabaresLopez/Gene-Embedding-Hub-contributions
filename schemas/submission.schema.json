@@ -34,7 +34,7 @@
       "additionalProperties": false,
       "required": ["broad_modality", "detailed_modality", "original_method", "model_checkpoint", "description"],
       "properties": {
-        "broad_modality": {"type": "string"},
+        "broad_modality": {"type": "string", "minLength": 2, "maxLength": 80, "pattern": "^[^\\r\\n]+$"},
         "detailed_modality": {"type": "string", "minLength": 2},
         "original_method": {"type": "string", "minLength": 2},
         "model_checkpoint": {"type": "string", "minLength": 1},
