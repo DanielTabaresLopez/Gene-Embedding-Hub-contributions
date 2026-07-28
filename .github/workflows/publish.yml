@@ -349,16 +349,51 @@ jobs:
           python -m pip install -e .
           python -m pip install "huggingface_hub>=1.19.0" hf_xet
 
-      - name: Download and inspect the Hugging Face PR diff
+      - name: Inspect the Hugging Face PR repository trees
         id: inspect
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
           HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
-          NO_COLOR: "1"
         run: |
           set -euo pipefail
 
           mkdir -p hf-pr-state
+
+          oidc_token="$(
+            curl \
+              --fail \
+              --silent \
+              --show-error \
+              -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+              "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=https%3A%2F%2Fhuggingface.co" \
+            | jq -er '.value'
+          )"
+
+          hf_token="$(
+            jq -n \
+              --arg subject_token "$oidc_token" \
+              --arg resource "$HF_RESOURCE" \
+              '{
+                grant_type:
+                  "urn:ietf:params:oauth:grant-type:token-exchange",
+                subject_token_type:
+                  "urn:ietf:params:oauth:token-type:id_token",
+                subject_token: $subject_token,
+                resource: $resource
+              }' \
+            | curl \
+                --fail-with-body \
+                --silent \
+                --show-error \
+                -X POST \
+                -H "Content-Type: application/json" \
+                --data-binary @- \
+                https://huggingface.co/oauth/token \
+            | jq -er '.access_token'
+          )"
+
+          echo "::add-mask::$hf_token"
+          export HF_TOKEN="$hf_token"
 
           hf discussions info \
             embeddingsSSRF/gene_embeddings_staging \
@@ -367,11 +402,15 @@ jobs:
             --format json \
             > hf-pr-state/info.json
 
-          hf discussions diff \
-            embeddingsSSRF/gene_embeddings_staging \
-            "$HF_PR_NUMBER" \
+          python scripts/build_hf_pr_diff.py \
+            --repo-id \
+              embeddingsSSRF/gene_embeddings_staging \
             --repo-type dataset \
-            > hf-pr-state/pr.diff
+            --pr-number "$HF_PR_NUMBER" \
+            --info-json hf-pr-state/info.json \
+            --output hf-pr-state/pr.diff \
+            --summary-json \
+              hf-pr-state/tree-comparison.json
 
           python scripts/inspect_hf_pr.py \
             --diff-file hf-pr-state/pr.diff \
