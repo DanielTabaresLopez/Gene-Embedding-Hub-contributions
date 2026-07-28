@@ -536,26 +536,36 @@ jobs:
       - name: Comment when validation fails
         if: steps.release.outputs.exit_code != '0'
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
           HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
         run: |
           set -euo pipefail
 
+          hf_token="$(
+            bash scripts/exchange_hf_oidc_token.sh \
+              "$HF_RESOURCE"
+          )"
+
+          echo "::add-mask::$hf_token"
+          export HF_TOKEN="$hf_token"
+
           if [ -f dist/reports/validation_summary.md ]; then
-            hf discussions comment \
-              embeddingsSSRF/gene_embeddings_staging \
-              "$HF_PR_NUMBER" \
-              --repo-type dataset \
-              --body-file \
-                dist/reports/validation_summary.md
+            comment_file="dist/reports/validation_summary.md"
           else
-            hf discussions comment \
-              embeddingsSSRF/gene_embeddings_staging \
-              "$HF_PR_NUMBER" \
-              --repo-type dataset \
-              --body \
-                "Automatic validation failed before a complete report could be generated. Nothing was published."
+            comment_file="hf-pr-failure-comment.md"
+
+            cat > "$comment_file" <<'EOF'
+          Automatic validation failed before a complete report could
+          be generated. Nothing was published.
+          EOF
           fi
+
+          python scripts/manage_hf_pr.py \
+            --repo-id \
+              embeddingsSSRF/gene_embeddings_staging \
+            --repo-type dataset \
+            --pr-number "$HF_PR_NUMBER" \
+            --comment-file "$comment_file"
 
       - name: Stop when validation did not strictly pass
         if: steps.release.outputs.exit_code != '0'
@@ -597,11 +607,19 @@ jobs:
 
       - name: Report acceptance and close the Hugging Face PR
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
           EMBEDDING_ID: ${{ steps.inspect.outputs.embedding_id }}
           HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
         run: |
           set -euo pipefail
+
+          hf_token="$(
+            bash scripts/exchange_hf_oidc_token.sh \
+              "$HF_RESOURCE"
+          )"
+
+          echo "::add-mask::$hf_token"
+          export HF_TOKEN="$hf_token"
 
           cp \
             dist/reports/validation_summary.md \
@@ -618,17 +636,13 @@ jobs:
           The registry and staging Space were updated automatically.
           EOF
 
-          hf discussions comment \
-            embeddingsSSRF/gene_embeddings_staging \
-            "$HF_PR_NUMBER" \
+          python scripts/manage_hf_pr.py \
+            --repo-id \
+              embeddingsSSRF/gene_embeddings_staging \
             --repo-type dataset \
-            --body-file hf-pr-success-comment.md
-
-          hf discussions close \
-            embeddingsSSRF/gene_embeddings_staging \
-            "$HF_PR_NUMBER" \
-            --repo-type dataset \
-            --yes \
-            --comment \
+            --pr-number "$HF_PR_NUMBER" \
+            --comment-file hf-pr-success-comment.md \
+            --close \
+            --close-comment \
               "Accepted and centrally archived. Thank you for the contribution."
 
