@@ -1,0 +1,16 @@
+schema_version: 1
+
+categories:
+  - DNA
+  - Expression
+  - Functional Genomics
+  - Knowledge
+  - Literature
+  - Multimodal
+  - Network
+  - Protein
+  - RNA
+  - Regulatory
+  - Single-cell
+
+fallback_category: Other
