@@ -118,6 +118,7 @@ jobs:
           A new commit to this Pull Request will be treated as a new revision and may be validated again.
           EOF
 
+          HF_TOKEN="${{ secrets.HF_PR_TOKEN }}" \
           python scripts/manage_hf_pr.py \
             --repo-id \
               embeddingsSSRF/gene_embeddings_staging \
