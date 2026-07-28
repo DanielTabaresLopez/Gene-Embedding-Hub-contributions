@@ -1,5 +1,8 @@
 from pathlib import Path
 
+import json
+import yaml
+
 
 REQUIRED_FILES = {
     "embeddings.npz",
@@ -9,6 +12,21 @@ REQUIRED_FILES = {
     "submission.yaml",
 }
 
+CATEGORIES = {
+    "dna",
+    "expression",
+    "functional-genomics",
+    "knowledge",
+    "literature",
+    "multimodal",
+    "network",
+    "protein",
+    "rna",
+    "regulatory",
+    "single-cell",
+    "other",
+}
+
 
 def read(path: str) -> str:
     return Path(path).read_text(
@@ -16,58 +34,96 @@ def read(path: str) -> str:
     )
 
 
-def test_space_uses_hugging_face_uploader() -> None:
-    app = read("space/app.js")
-
-    assert (
-        "embeddingsSSRF/"
-        "gene_embeddings_staging/upload/main"
-        in app
-    )
-
-    assert "GITHUB_CONTRIBUTING" not in app
-
-
-def test_space_explains_pull_request_submission() -> None:
+def test_all_submission_instructions_are_on_main_page() -> None:
     index = read("space/index.html")
-    guide = read("space/contribute.html")
 
+    assert 'href="#contribute"' in index
+    assert "Open Hugging Face uploader" in index
     assert "Open as a pull request" in index
-    assert "Open as a pull request" in guide
-    assert "Do not commit" in guide
+    assert "Automatic validation and publication" in index
 
     for filename in REQUIRED_FILES:
         assert filename in index
-        assert filename in guide
+
+    assert not Path(
+        "space/contribute.html"
+    ).exists()
 
 
-def test_space_has_downloadable_template() -> None:
-    deployed = read(
-        "space/submission-template.yaml"
+def test_unwanted_space_sections_are_absent() -> None:
+    index = read("space/index.html")
+
+    removed_phrases = [
+        (
+            "A GitHub account, GitHub fork, separate "
+            "Dataset, and commit SHA are not required."
+        ),
+        "Privacy and publication",
+        "Staging access",
+        "Staging note:",
+    ]
+
+    for phrase in removed_phrases:
+        assert phrase not in index
+
+
+def test_template_uses_category_and_modality() -> None:
+    source = yaml.safe_load(
+        read("portal_template/submission.yaml")
     )
 
-    source = read(
-        "portal_template/submission.yaml"
+    deployed = yaml.safe_load(
+        read("space/submission-template.yaml")
     )
 
-    assert deployed == source
+    assert source == deployed
 
-
-def test_old_contribution_architecture_removed() -> None:
-    contributing = read("CONTRIBUTING.md")
-    readme = read("README.md")
+    scientific = source["scientific"]
 
     assert (
-        "Fork this GitHub repository"
-        not in contributing
+        scientific["category"]
+        == "Replace with the category"
     )
 
     assert (
-        "Contributor Hugging Face Datasets"
-        not in readme
+        scientific["modality"]
+        == "Replace with the modality"
+    )
+
+    assert "broad_modality" not in scientific
+    assert "detailed_modality" not in scientific
+
+
+def test_portal_schema_requires_category_and_modality() -> None:
+    schema = json.loads(
+        read(
+            "schemas/portal_submission.schema.json"
+        )
+    )
+
+    scientific = schema[
+        "properties"
+    ]["scientific"]
+
+    assert "category" in scientific["required"]
+    assert "modality" in scientific["required"]
+
+    assert (
+        "broad_modality"
+        not in scientific["properties"]
     )
 
     assert (
-        "data/embeddings/<embedding_id>"
-        in contributing
+        "detailed_modality"
+        not in scientific["properties"]
     )
+
+
+def test_category_card_palettes_are_present() -> None:
+    app = read("space/app.js")
+    style = read("space/style.css")
+
+    assert "categoryClass(item.category)" in app
+
+    for category in CATEGORIES:
+        assert f".category-{category}" in style

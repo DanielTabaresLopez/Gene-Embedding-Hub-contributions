@@ -2,12 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1"
   />
+
   <title>Gene Embeddings</title>
-  <link rel="stylesheet" href="style.css" />
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  />
 </head>
 
 <body>
@@ -28,20 +34,9 @@
       <div class="actions">
         <a
           class="button primary"
-          id="contribute-link"
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="#contribute"
         >
-          Upload an embedding
-        </a>
-
-        <a
-          class="button"
-          id="submission-guide-link"
-          href="contribute.html"
-        >
-          Submission guide
+          Contribute an embedding
         </a>
 
         <a
@@ -87,7 +82,7 @@
       <input
         id="search"
         type="search"
-        placeholder="Search names, modalities, or methods"
+        placeholder="Search names, categories, modalities, or methods"
         aria-label="Search catalog"
       />
 
@@ -116,63 +111,159 @@
       class="contribute"
       id="contribute"
     >
-      <h2>Submit directly through Hugging Face</h2>
-
-      <p>
-        A Hugging Face account is required. A GitHub account,
-        GitHub fork, separate Dataset, and commit SHA are not
-        required.
+      <p class="section-label">
+        Community contribution
       </p>
 
-      <ol>
-        <li>
-          Prepare one folder containing
-          <code>embeddings.npz</code>,
-          <code>genes.tsv</code>,
-          <code>metadata.json</code>,
-          <code>README.md</code>, and
-          <code>submission.yaml</code>.
-        </li>
+      <h2>Submit a gene embedding</h2>
 
-        <li>
-          Name the folder using a unique lowercase embedding ID.
-        </li>
+      <p class="contribute-intro">
+        Prepare one standardized package and upload it directly to
+        the library-owned Hugging Face Dataset as a Pull Request.
+      </p>
 
-        <li>
-          Click <strong>Open Hugging Face uploader</strong> and
-          place the files under
-          <code>incoming/&lt;embedding_id&gt;/</code>.
-        </li>
+      <div class="instruction-grid">
+        <article class="instruction-card">
+          <span class="step-number">1</span>
 
-        <li>
-          Select <strong>Open as a pull request</strong>.
-          Do not commit the files directly to
-          <code>main</code>.
-        </li>
+          <h3>Prepare one folder</h3>
 
-        <li>
-          Ensure the resulting Pull Request is marked
-          <strong>Open</strong> or
-          <strong>Ready for review</strong>, not Draft.
-        </li>
-      </ol>
+          <pre><code>&lt;embedding_id&gt;/
+├── embeddings.npz
+├── genes.tsv
+├── metadata.json
+├── README.md
+└── submission.yaml</code></pre>
+
+          <p>
+            The embedding ID must contain 3–80 lowercase letters,
+            numbers, dots, underscores, or hyphens and must begin
+            with a letter or number.
+          </p>
+        </article>
+
+        <article class="instruction-card">
+          <span class="step-number">2</span>
+
+          <h3>Check the package contract</h3>
+
+          <ul>
+            <li>
+              <code>embeddings.npz</code> contains exactly one
+              two-dimensional <code>float32</code> array named
+              <code>embeddings</code>.
+            </li>
+
+            <li>
+              <code>genes.tsv</code> contains one unique
+              <code>ensembl_gene_id</code> column whose rows match
+              the matrix rows.
+            </li>
+
+            <li>
+              <code>metadata.json</code> describes the embedding and
+              contains matching <code>category</code> and
+              <code>modality</code> values.
+            </li>
+
+            <li>
+              <code>README.md</code> documents how the representation
+              was produced.
+            </li>
+          </ul>
+        </article>
+
+        <article class="instruction-card">
+          <span class="step-number">3</span>
+
+          <h3>Complete the submission template</h3>
+
+          <p>
+            Download <code>submission.yaml</code> and replace every
+            placeholder.
+          </p>
+
+          <p>
+            <strong>Category</strong> is the broad catalog group.
+            Recommended values are:
+          </p>
+
+          <p class="category-list">
+            DNA · Expression · Functional Genomics · Knowledge ·
+            Literature · Multimodal · Network · Protein · RNA ·
+            Regulatory · Single-cell
+          </p>
+
+          <p>
+            An unrecognized category is preserved but displayed
+            under <strong>Other</strong>.
+          </p>
+
+          <p>
+            <strong>Modality</strong> is the specific free-text
+            description, such as <em>protein sequence</em>,
+            <em>single-cell transcriptomics</em>, or
+            <em>regulatory activity</em>.
+          </p>
+        </article>
+
+        <article class="instruction-card">
+          <span class="step-number">4</span>
+
+          <h3>Upload as a Pull Request</h3>
+
+          <ol>
+            <li>
+              Open the Hugging Face uploader using the button below.
+            </li>
+
+            <li>
+              Upload the five files under
+              <code>incoming/&lt;embedding_id&gt;/</code>.
+            </li>
+
+            <li>
+              Enter a message such as
+              <code>Submit &lt;embedding_id&gt;</code>.
+            </li>
+
+            <li>
+              Select <strong>Open as a pull request</strong>.
+            </li>
+
+            <li>
+              Do not commit the files directly to
+              <code>main</code>.
+            </li>
+          </ol>
+        </article>
+
+        <article class="instruction-card full-width">
+          <span class="step-number">5</span>
+
+          <h3>Automatic validation and publication</h3>
+
+          <p>
+            The package structure, metadata consistency, Ensembl
+            identifiers, matrix shape, numeric validity, licensing,
+            provenance, and attestations are checked automatically.
+          </p>
+
+          <p>
+            A strict PASS is stored in the central Dataset and added
+            to this catalog.
+          </p>
+        </article>
+      </div>
 
       <div class="button-row">
         <a
           class="button primary"
-          id="contribute-link-bottom"
-          href="#"
+          href="https://huggingface.co/datasets/embeddingsSSRF/gene_embeddings_staging/upload/main"
           target="_blank"
           rel="noopener noreferrer"
         >
           Open Hugging Face uploader
-        </a>
-
-        <a
-          class="button"
-          href="contribute.html"
-        >
-          Read full submission guide
         </a>
 
         <a
@@ -184,12 +275,17 @@
         </a>
       </div>
 
-      <p class="staging-note">
-        Staging note: submissions are currently processed after
-        a maintainer starts the validation workflow. Automatic
-        discovery will be enabled after the staging interface
-        has been verified.
-      </p>
+      <details class="cli-alternative">
+        <summary>Command-line alternative</summary>
+
+        <pre><code>hf upload \
+  embeddingsSSRF/gene_embeddings_staging \
+  ./&lt;embedding_id&gt; \
+  incoming/&lt;embedding_id&gt; \
+  --repo-type dataset \
+  --create-pr \
+  --commit-message "Submit &lt;embedding_id&gt;"</code></pre>
+      </details>
     </section>
   </main>
 

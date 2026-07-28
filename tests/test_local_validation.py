@@ -92,6 +92,22 @@ def test_portal_submission_passes(
         "email"
     )
 
+    portal_scientific = portal_document[
+        "scientific"
+    ]
+
+    portal_scientific["category"] = (
+        portal_scientific.pop(
+            "broad_modality"
+        )
+    )
+
+    portal_scientific["modality"] = (
+        portal_scientific.pop(
+            "detailed_modality"
+        )
+    )
+
     portal_submission = (
         tmp_path / "portal_submission.yaml"
     )

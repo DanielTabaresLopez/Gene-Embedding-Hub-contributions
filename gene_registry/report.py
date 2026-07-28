@@ -11,6 +11,7 @@ def write_report(
     output_dir: str | Path,
 ) -> None:
     output = Path(output_dir)
+
     output.mkdir(
         parents=True,
         exist_ok=True,
@@ -36,6 +37,14 @@ def write_report(
                     f"`{result.summary.get('embedding_id', 'unknown')}`"
                 ),
                 (
+                    "- Category: "
+                    f"`{result.summary.get('catalog_category', result.summary.get('submitted_category', '—'))}`"
+                ),
+                (
+                    "- Modality: "
+                    f"`{result.summary.get('submitted_modality', '—')}`"
+                ),
+                (
                     "- Genes: "
                     f"{result.summary.get('n_genes', '—')}"
                 ),
@@ -47,31 +56,6 @@ def write_report(
                     "- Dtype: "
                     f"{result.summary.get('dtype', '—')}"
                 ),
-            ]
-        )
-
-        submitted_category = result.summary.get(
-            "submitted_broad_modality"
-        )
-
-        catalog_category = result.summary.get(
-            "catalog_category"
-        )
-
-        if submitted_category is not None:
-            lines.append(
-                "- Submitted modality: "
-                f"`{submitted_category}`"
-            )
-
-        if catalog_category is not None:
-            lines.append(
-                "- Catalog category: "
-                f"`{catalog_category}`"
-            )
-
-        lines.extend(
-            [
                 (
                     "- Master coverage: "
                     f"{100 * result.summary.get('master_coverage_fraction', 0):.2f}%"
