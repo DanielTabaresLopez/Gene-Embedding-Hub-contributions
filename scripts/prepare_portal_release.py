@@ -196,7 +196,7 @@ def main() -> int:
         ),
     )
 
-        submitted_category = submission_category(
+    submitted_category = submission_category(
         submission
     )
 
