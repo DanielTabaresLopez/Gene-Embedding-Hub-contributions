@@ -1,62 +1,65 @@
 # Contributing a gene embedding
 
-## 1. Prepare a public Hugging Face Dataset
+Contributors submit directly to the library-owned Hugging Face
+Dataset as a Hugging Face Pull Request.
 
-Your candidate repository must contain one package directory with:
+A GitHub account, GitHub fork, personal Dataset, and commit SHA
+are not required.
+
+## 1. Prepare the package
+
+Create one uniquely named folder:
 
 ```text
-<package_path>/
+<embedding_id>/
 ├── embeddings.npz
 ├── genes.tsv
 ├── metadata.json
-└── README.md
+├── README.md
+└── submission.yaml
 ```
 
-Required package contract:
+Start from `portal_template/submission.yaml`.
 
-- `embeddings.npz` contains exactly one array named `embeddings`.
-- The array is a two-dimensional `float32` matrix.
-- `genes.tsv` contains a unique, non-empty `ensembl_gene_id` column.
-- Rows of `genes.tsv` correspond exactly to rows of `embeddings`.
-- The repository must remain public during validation and after acceptance.
+The embedding ID must contain 3–80 lowercase letters, numbers,
+dots, underscores, or hyphens and must begin with a letter or
+number.
 
-- `broad_modality` is a contributor-defined catalog category of 2–80 characters. New category names are accepted automatically, but the value must match exactly between the submission YAML and `metadata.json`.
+## 2. Upload to Hugging Face
 
-## 2. Freeze the candidate
+Upload the folder under:
 
-Open the candidate Dataset's **Files and versions** page and copy its full 40-character commit SHA. Do not submit `main`.
-
-## 3. Run the same validator locally or in a temporary notebook
-
-```bash
-python -m pip install -e .
-python -m gene_registry.cli validate \
-  --submission submissions/my_embedding.yaml \
-  --policy config/policy.yaml \
-  --master-genes reference/master_gene_ids.txt \
-  --schema-dir schemas \
-  --output-dir validation-output
+```text
+incoming/<embedding_id>/
 ```
 
-This pre-check is optional. GitHub reruns the validator independently.
+Select **Open as a pull request**. Do not commit directly to
+`main`.
 
-## 4. Open a Pull Request
+Ensure that the Pull Request is Open or Ready for review rather
+than Draft.
 
-1. Fork this GitHub repository.
-2. Copy `submissions/_template.yaml` to `submissions/<embedding_id>.yaml`.
-3. Fill every field and all attestations.
-4. Change **only that one submission file**.
-5. Open a Pull Request to `main`.
+## 3. Validation and publication
 
-The trusted workflow reads the YAML as data, downloads the frozen Hugging Face package, and applies the automatic acceptance policy. A strict PASS is merged and published automatically. A failure remains open for correction.
+The trusted GitHub workflow inspects the proposed repository tree
+and validates the five-file package.
 
-## 5. Community package storage and availability
+A strict PASS is copied into the central Dataset under:
 
-Accepted community matrices remain in the contributor-owned public Hugging Face
-Dataset at the submitted immutable commit SHA. The central library stores the
-catalog entry, provenance, checksums and validation reports, but does not create
-a second copy of `embeddings.npz`.
+```text
+data/embeddings/<embedding_id>/
+```
 
-The submitted Dataset and immutable revision must remain publicly accessible
-after acceptance. An entry may be marked unavailable or removed from the active
-catalog if its source package is later deleted or made private.
+The community registry and static Space catalog are then updated.
+The raw `incoming/` proposal is closed without being merged into
+`main`.
+
+Failed submissions are not published.
+
+## 4. Privacy
+
+Do not upload personal email addresses, credentials, access
+tokens, patient information, patient-level data, or other
+sensitive material.
+
+See `docs/HUGGINGFACE_SUBMISSION.md` for the complete guide.

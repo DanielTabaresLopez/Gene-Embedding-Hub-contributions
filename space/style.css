@@ -65,3 +65,57 @@ dialog::backdrop { background: rgba(12,20,40,.55); }
   color: var(--success);
 }
 
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.staging-note {
+  margin-top: 22px;
+  padding: 14px 16px;
+  border-left: 4px solid var(--brand);
+  background: var(--wash);
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.guide-layout {
+  display: grid;
+  gap: 18px;
+  padding-top: 38px;
+}
+
+.guide-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 26px;
+}
+
+.guide-card h2 {
+  margin-top: 0;
+}
+
+.guide-card p,
+.guide-card li {
+  line-height: 1.65;
+}
+
+.guide-card pre {
+  overflow-x: auto;
+  padding: 16px;
+  border-radius: 10px;
+  background: #111a2e;
+  color: #edf2ff;
+}
+
+.warning-card {
+  border-left: 5px solid #c77a00;
+}
+
+.staging-card {
+  border-left: 5px solid var(--brand);
+}
+

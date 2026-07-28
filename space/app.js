@@ -1,9 +1,11 @@
 (() => {
   "use strict";
 
-  const GITHUB_CONTRIBUTING =
-    "https://github.com/DanielTabaresLopez/" +
-    "Gene-Embeddings-Contributions/blob/main/CONTRIBUTING.md";
+  const HF_UPLOAD_URL =
+    "https://huggingface.co/datasets/" +
+    "embeddingsSSRF/gene_embeddings_staging/upload/main";
+
+  const SUBMISSION_GUIDE = "contribute.html";
 
   const DATASET_BASE =
     "https://huggingface.co/datasets/" +
@@ -18,10 +20,13 @@
   let catalog = [];
 
   document.getElementById("contribute-link").href =
-    GITHUB_CONTRIBUTING;
+    HF_UPLOAD_URL;
 
   document.getElementById("contribute-link-bottom").href =
-    GITHUB_CONTRIBUTING;
+    HF_UPLOAD_URL;
+
+  document.getElementById("submission-guide-link").href =
+    SUBMISSION_GUIDE;
 
   document
     .getElementById("close-detail")
