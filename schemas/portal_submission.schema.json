@@ -48,22 +48,24 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "broad_modality",
-        "detailed_modality",
+        "category",
+        "modality",
         "original_method",
         "model_checkpoint",
         "description"
       ],
       "properties": {
-        "broad_modality": {
+        "category": {
           "type": "string",
           "minLength": 2,
           "maxLength": 80,
-          "pattern": "^[^\\r\\n]+$"
+          "pattern": "^[^\\r\\n]+$",
+          "description": "Broad catalog category. Recommended values are defined in config/modalities.yaml. Unrecognized values are published under Other."
         },
-        "detailed_modality": {
+        "modality": {
           "type": "string",
-          "minLength": 2
+          "minLength": 2,
+          "description": "Specific free-text modality represented by the embedding."
         },
         "original_method": {
           "type": "string",

@@ -5,8 +5,8 @@ contributor:
   name: Replace with contributor name
   affiliation: Replace with institution or organization
 scientific:
-  broad_modality: Protein
-  detailed_modality: Replace with a precise modality description
+  category: Replace with the category
+  modality: Replace with the modality
   original_method: Replace with the model or generation method
   model_checkpoint: Replace with checkpoint/version or not-applicable
   source_publication: ''

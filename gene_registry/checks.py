@@ -10,6 +10,12 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from .embedding_fields import (
+    package_category,
+    package_modality,
+    submission_category,
+    submission_modality,
+)
 from .models import ValidationResult
 from .submission import validate_document
 from .util import sha256_file
@@ -58,31 +64,100 @@ def validate_package(
         result.add("metadata.schema", "FAIL", str(exc))
         return _finish(result, policy)
 
+    submitted_category = submission_category(
+        submission
+    )
+
+    submitted_modality = submission_modality(
+        submission
+    )
+
+    stored_category = package_category(
+        metadata
+    )
+
+    stored_modality = package_modality(
+        metadata
+    )
+
     expected_pairs = {
         "embedding_id": submission["embedding_id"],
         "display_name": submission["display_name"],
         "species": submission["provenance"]["species"],
-        "broad_modality": submission["scientific"]["broad_modality"],
-        "detailed_modality": submission["scientific"]["detailed_modality"],
         "original_method": submission["scientific"]["original_method"],
         "model_checkpoint": submission["scientific"]["model_checkpoint"],
-        "embedding_generated_by": submission["provenance"]["embedding_generated_by"],
-        "input_data_source": submission["provenance"]["input_data_source"],
-        "input_data_release": submission["provenance"]["input_data_release"],
-        "pooling_strategy": submission["provenance"]["pooling_strategy"],
-        "original_identifier_type": submission["provenance"]["identifier_before_mapping"],
-        "mapping_method": submission["provenance"]["mapping_method"],
-        "source_license": submission["licensing"]["source_license"],
+        "embedding_generated_by": submission[
+            "provenance"
+        ]["embedding_generated_by"],
+        "input_data_source": submission[
+            "provenance"
+        ]["input_data_source"],
+        "input_data_release": submission[
+            "provenance"
+        ]["input_data_release"],
+        "pooling_strategy": submission[
+            "provenance"
+        ]["pooling_strategy"],
+        "original_identifier_type": submission[
+            "provenance"
+        ]["identifier_before_mapping"],
+        "mapping_method": submission[
+            "provenance"
+        ]["mapping_method"],
+        "source_license": submission[
+            "licensing"
+        ]["source_license"],
         "redistribution_allowed": True,
     }
+
     for key, expected in expected_pairs.items():
         actual = metadata.get(key)
+
         result.add(
             f"metadata.consistency.{key}",
             _status(actual == expected),
-            f"metadata {key} {'matches' if actual == expected else 'does not match'} submission",
-            {"expected": expected, "actual": actual},
+            (
+                f"metadata {key} matches submission"
+                if actual == expected
+                else f"metadata {key} does not match submission"
+            ),
+            {
+                "expected": expected,
+                "actual": actual,
+            },
         )
+
+    result.add(
+        "metadata.consistency.category",
+        _status(
+            stored_category == submitted_category
+        ),
+        (
+            "metadata category matches submission"
+            if stored_category == submitted_category
+            else "metadata category does not match submission"
+        ),
+        {
+            "expected": submitted_category,
+            "actual": stored_category,
+        },
+    )
+
+    result.add(
+        "metadata.consistency.modality",
+        _status(
+            stored_modality == submitted_modality
+        ),
+        (
+            "metadata modality matches submission"
+            if stored_modality == submitted_modality
+            else "metadata modality does not match submission"
+        ),
+        {
+            "expected": submitted_modality,
+            "actual": stored_modality,
+        },
+    )
 
     allowed_species = set(
         policy["metadata"]["allowed_species"]
@@ -100,26 +175,40 @@ def validate_package(
         metadata["species"],
     )
 
-    broad_modality = metadata["broad_modality"]
-    normalized_modality = broad_modality.strip()
+    normalized_category = stored_category.strip()
 
-    valid_modality = (
-        broad_modality == normalized_modality
-        and 2 <= len(normalized_modality) <= 80
+    valid_category = (
+        stored_category == normalized_category
+        and 2 <= len(normalized_category) <= 80
         and all(
             character.isprintable()
-            for character in broad_modality
+            for character in stored_category
+        )
+    )
+
+    result.add(
+        "policy.category",
+        _status(valid_category),
+        "Category is a valid catalog category value",
+        stored_category,
+    )
+
+    normalized_modality = stored_modality.strip()
+
+    valid_modality = (
+        stored_modality == normalized_modality
+        and len(normalized_modality) >= 2
+        and all(
+            character.isprintable()
+            for character in stored_modality
         )
     )
 
     result.add(
         "policy.modality",
         _status(valid_modality),
-        (
-            "Broad modality is a valid "
-            "contributor-defined category"
-        ),
-        broad_modality,
+        "Modality is a valid free-text description",
+        stored_modality,
     )
 
     result.add(
@@ -228,6 +317,8 @@ def validate_package(
     result.summary.update({
         "embedding_id": submission["embedding_id"],
         "display_name": submission["display_name"],
+        "submitted_category": submitted_category,
+        "submitted_modality": submitted_modality,
         "n_genes": int(rows),
         "n_dimensions": int(dims),
         "dtype": str(matrix.dtype),

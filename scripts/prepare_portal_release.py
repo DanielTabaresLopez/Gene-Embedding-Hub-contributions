@@ -12,6 +12,10 @@ from urllib.parse import quote
 from gene_registry.categories import (
     resolve_catalog_category,
 )
+from gene_registry.embedding_fields import (
+    submission_category,
+    submission_modality,
+)
 from gene_registry.report import write_report
 from gene_registry.service import run_validation
 from gene_registry.submission import (
@@ -192,9 +196,13 @@ def main() -> int:
         ),
     )
 
-    submitted_category = submission[
-        "scientific"
-    ]["broad_modality"]
+        submitted_category = submission_category(
+        submission
+    )
+
+    submitted_modality = submission_modality(
+        submission
+    )
 
     catalog_category, recognized = (
         resolve_catalog_category(
@@ -208,7 +216,7 @@ def main() -> int:
             "catalog.category",
             "PASS",
             (
-                "Submitted modality matched the catalog "
+                "Submitted category matched the catalog "
                 f"category {catalog_category!r}."
             ),
             {
@@ -221,7 +229,7 @@ def main() -> int:
             "catalog.category",
             "INFO",
             (
-                f"Submitted modality {submitted_category!r} "
+                f"Submitted category {submitted_category!r} "
                 "is not in the official category list. "
                 "The embedding will be displayed under "
                 f"{catalog_category!r}."
@@ -234,8 +242,11 @@ def main() -> int:
 
     result.summary.update(
         {
-            "submitted_broad_modality": (
+            "submitted_category": (
                 submitted_category
+            ),
+            "submitted_modality": (
+                submitted_modality
             ),
             "catalog_category": catalog_category,
             "category_fallback_applied": (
@@ -397,16 +408,17 @@ def main() -> int:
             "huggingface_pull_request"
         ),
         "source_pr_number": args.hf_pr_number,
-        "submitted_broad_modality": (
+        "submitted_category": (
             submitted_category
+        ),
+        "submitted_modality": (
+            submitted_modality
         ),
         "catalog_category": catalog_category,
         "category_fallback_applied": (
             not recognized
         ),
-        "detailed_modality": submission[
-            "scientific"
-        ]["detailed_modality"],
+        "modality": submitted_modality,
         "n_genes": result.summary["n_genes"],
         "n_dimensions": result.summary[
             "n_dimensions"
@@ -498,12 +510,10 @@ def main() -> int:
                 if recognized
                 else "fallback_other"
             ),
-            "submitted_broad_modality": (
+            "submitted_category": (
                 submitted_category
             ),
-            "modality": submission[
-                "scientific"
-            ]["detailed_modality"],
+            "modality": submitted_modality,
             "algorithm": submission[
                 "scientific"
             ]["original_method"],

@@ -119,3 +119,221 @@ dialog::backdrop { background: rgba(12,20,40,.55); }
   border-left: 5px solid var(--brand);
 }
 
+
+html {
+  scroll-behavior: smooth;
+}
+
+.card {
+  --category-background: #ffffff;
+  --category-border: #dbe2ee;
+  --category-accent: #3157d5;
+  --category-badge: #e8edff;
+
+  background: var(--category-background);
+  border-color: var(--category-border);
+  border-top: 5px solid var(--category-accent);
+}
+
+.card .badge-row .badge:first-child {
+  background: var(--category-badge);
+  color: var(--category-accent);
+}
+
+.category-dna {
+  --category-background: #eef5ff;
+  --category-border: #aac9ef;
+  --category-accent: #2869c7;
+  --category-badge: #dae9fc;
+}
+
+.category-expression {
+  --category-background: #fff4e9;
+  --category-border: #edc69a;
+  --category-accent: #b96512;
+  --category-badge: #ffe3c3;
+}
+
+.category-functional-genomics {
+  --category-background: #edf9f1;
+  --category-border: #acd8b8;
+  --category-accent: #267842;
+  --category-badge: #d7f0df;
+}
+
+.category-knowledge {
+  --category-background: #f5efff;
+  --category-border: #cbb5e9;
+  --category-accent: #7044ac;
+  --category-badge: #e8dcfa;
+}
+
+.category-literature {
+  --category-background: #fff0f4;
+  --category-border: #e8b5c4;
+  --category-accent: #ac3e61;
+  --category-badge: #f9dce4;
+}
+
+.category-multimodal {
+  --category-background: #eaf9fb;
+  --category-border: #a5d7dd;
+  --category-accent: #177684;
+  --category-badge: #d3eff2;
+}
+
+.category-network {
+  --category-background: #fff0ee;
+  --category-border: #eab3ab;
+  --category-accent: #af4437;
+  --category-badge: #f9d9d4;
+}
+
+.category-protein {
+  --category-background: #edf8f6;
+  --category-border: #a5d4cb;
+  --category-accent: #187361;
+  --category-badge: #d2ede7;
+}
+
+.category-rna {
+  --category-background: #fff9e7;
+  --category-border: #e3cb88;
+  --category-accent: #8a6810;
+  --category-badge: #f5e7b6;
+}
+
+.category-regulatory {
+  --category-background: #f0f1ff;
+  --category-border: #b7bae7;
+  --category-accent: #4c50ae;
+  --category-badge: #dedff8;
+}
+
+.category-single-cell {
+  --category-background: #fff0fa;
+  --category-border: #e1b2d2;
+  --category-accent: #9f3e7f;
+  --category-badge: #f4daeb;
+}
+
+.category-other,
+.category-uncategorized {
+  --category-background: #f3f5f7;
+  --category-border: #c7cdd5;
+  --category-accent: #596576;
+  --category-badge: #e1e5ea;
+}
+
+.contribute {
+  scroll-margin-top: 24px;
+  margin-top: 64px;
+  padding: 34px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+}
+
+.section-label {
+  margin: 0 0 8px;
+  color: var(--brand);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.contribute h2 {
+  margin-top: 0;
+}
+
+.contribute-intro {
+  max-width: 800px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.instruction-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.instruction-card {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--wash);
+}
+
+.instruction-card.full-width {
+  grid-column: 1 / -1;
+}
+
+.instruction-card h3 {
+  margin: 8px 0 12px;
+}
+
+.instruction-card p,
+.instruction-card li {
+  line-height: 1.6;
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.category-list {
+  font-weight: 650;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+.cli-alternative {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.cli-alternative summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.cli-alternative pre,
+.instruction-card pre {
+  overflow-x: auto;
+  padding: 16px;
+  border-radius: 10px;
+  background: #111a2e;
+  color: #edf2ff;
+}
+
+@media (max-width: 720px) {
+  .instruction-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .instruction-card.full-width {
+    grid-column: auto;
+  }
+
+  .contribute {
+    padding: 24px 18px;
+  }
+}

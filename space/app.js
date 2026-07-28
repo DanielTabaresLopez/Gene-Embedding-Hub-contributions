@@ -1,12 +1,6 @@
 (() => {
   "use strict";
 
-  const HF_UPLOAD_URL =
-    "https://huggingface.co/datasets/" +
-    "embeddingsSSRF/gene_embeddings_staging/upload/main";
-
-  const SUBMISSION_GUIDE = "contribute.html";
-
   const DATASET_BASE =
     "https://huggingface.co/datasets/" +
     "embeddingsSSRF/gene_embeddings_staging/tree/main/";
@@ -19,14 +13,8 @@
 
   let catalog = [];
 
-  document.getElementById("contribute-link").href =
-    HF_UPLOAD_URL;
 
-  document.getElementById("contribute-link-bottom").href =
-    HF_UPLOAD_URL;
 
-  document.getElementById("submission-guide-link").href =
-    SUBMISSION_GUIDE;
 
   document
     .getElementById("close-detail")
@@ -80,6 +68,17 @@
       </p>`;
   };
 
+
+  const categoryClass = (value) => {
+    const slug = String(value || "Other")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    return `category-${slug || "other"}`;
+  };
+
   function render() {
     const term = search.value.trim().toLowerCase();
     const selected = category.value;
@@ -116,7 +115,7 @@
     items.forEach((item) => {
       const card = document.createElement("button");
 
-      card.className = "card";
+      card.className = `card ${categoryClass(item.category)}`;
 
       card.innerHTML = `
         <div class="badge-row">
