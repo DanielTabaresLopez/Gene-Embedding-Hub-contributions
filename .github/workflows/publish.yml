@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - submission
+          - hf_portal_pr
           - bootstrap_space
           - sync_core_catalog
       submission_file:
@@ -19,6 +20,14 @@ on:
         description: Trusted Git commit to publish from
         required: true
         default: main
+        type: string
+      hf_pr_number:
+        description: Hugging Face Dataset Pull Request number
+        required: false
+        type: string
+      hf_pr_author:
+        description: Hugging Face username that opened the Pull Request
+        required: false
         type: string
 
 permissions:
@@ -298,3 +307,289 @@ jobs:
             . \
             --repo-type space \
             --commit-message "Bootstrap automatic contribution interface"
+
+  publish-hf-portal-pr:
+    if: inputs.mode == 'hf_portal_pr'
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+
+    steps:
+      - name: Validate workflow inputs
+        env:
+          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
+          HF_PR_AUTHOR: ${{ inputs.hf_pr_author }}
+        run: |
+          set -euo pipefail
+
+          [[ "$HF_PR_NUMBER" =~ ^[1-9][0-9]*$ ]] || {
+            echo "hf_pr_number must be a positive integer"
+            exit 1
+          }
+
+          [[ "$HF_PR_AUTHOR" =~ ^[A-Za-z0-9._-]{1,96}$ ]] || {
+            echo "hf_pr_author contains unsupported characters"
+            exit 1
+          }
+
+      - name: Check out trusted portal code
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install portal tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install "huggingface_hub>=1.19.0" hf_xet
+
+      - name: Download and inspect the Hugging Face PR diff
+        id: inspect
+        env:
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
+          NO_COLOR: "1"
+        run: |
+          set -euo pipefail
+
+          mkdir -p hf-pr-state
+
+          hf discussions info \
+            embeddingsSSRF/gene_embeddings_staging \
+            "$HF_PR_NUMBER" \
+            --repo-type dataset \
+            --format json \
+            > hf-pr-state/info.json
+
+          hf discussions diff \
+            embeddingsSSRF/gene_embeddings_staging \
+            "$HF_PR_NUMBER" \
+            --repo-type dataset \
+            > hf-pr-state/pr.diff
+
+          python scripts/inspect_hf_pr.py \
+            --diff-file hf-pr-state/pr.diff \
+            --output hf-pr-state/inspection.json
+
+          embedding_id="$(
+            jq -r '.embedding_id' \
+              hf-pr-state/inspection.json
+          )"
+
+          package_path="$(
+            jq -r '.package_path' \
+              hf-pr-state/inspection.json
+          )"
+
+          echo "embedding_id=$embedding_id" \
+            >> "$GITHUB_OUTPUT"
+
+          echo "package_path=$package_path" \
+            >> "$GITHUB_OUTPUT"
+
+      - name: Download the proposed package from the PR revision
+        env:
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
+          PACKAGE_PATH: ${{ steps.inspect.outputs.package_path }}
+        run: |
+          set -euo pipefail
+
+          hf download \
+            embeddingsSSRF/gene_embeddings_staging \
+            --repo-type dataset \
+            --revision "refs/pr/${HF_PR_NUMBER}" \
+            --include "${PACKAGE_PATH}/*" \
+            --local-dir pr-snapshot
+
+          test -f \
+            "pr-snapshot/${PACKAGE_PATH}/embeddings.npz"
+
+          test -f \
+            "pr-snapshot/${PACKAGE_PATH}/genes.tsv"
+
+          test -f \
+            "pr-snapshot/${PACKAGE_PATH}/metadata.json"
+
+          test -f \
+            "pr-snapshot/${PACKAGE_PATH}/README.md"
+
+          test -f \
+            "pr-snapshot/${PACKAGE_PATH}/submission.yaml"
+
+      - name: Download the current community registry
+        env:
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+        run: |
+          set -euo pipefail
+
+          mkdir -p current-state/dataset
+
+          hf download \
+            embeddingsSSRF/gene_embeddings_staging \
+            data/community_registry.json \
+            --repo-type dataset \
+            --local-dir current-state/dataset
+
+      - name: Download the current Space catalog
+        env:
+          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
+        run: |
+          set -euo pipefail
+
+          mkdir -p current-state/space
+
+          hf download \
+            embeddingsSSRF/Gene-Embeddings-Staging \
+            catalog.json \
+            --repo-type space \
+            --local-dir current-state/space
+
+      - name: Validate and prepare the central release
+        id: release
+        env:
+          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
+          HF_PR_AUTHOR: ${{ inputs.hf_pr_author }}
+          PACKAGE_PATH: ${{ steps.inspect.outputs.package_path }}
+        run: |
+          set +e
+
+          python scripts/prepare_portal_release.py \
+            --package-dir "pr-snapshot/${PACKAGE_PATH}" \
+            --submission \
+              "pr-snapshot/${PACKAGE_PATH}/submission.yaml" \
+            --project config/project.yaml \
+            --policy config/policy.yaml \
+            --modalities config/modalities.yaml \
+            --master-genes reference/master_gene_ids.txt \
+            --schema-dir schemas \
+            --space-source space \
+            --existing-registry \
+              current-state/dataset/data/community_registry.json \
+            --existing-catalog \
+              current-state/space/catalog.json \
+            --hf-pr-number "$HF_PR_NUMBER" \
+            --hf-pr-author "$HF_PR_AUTHOR" \
+            --output-dir dist
+
+          code=$?
+
+          echo "exit_code=$code" \
+            >> "$GITHUB_OUTPUT"
+
+          exit 0
+
+      - name: Preserve validation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hf-pr-${{ inputs.hf_pr_number }}-validation
+          path: dist/reports
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Comment when validation fails
+        if: steps.release.outputs.exit_code != '0'
+        env:
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
+        run: |
+          set -euo pipefail
+
+          if [ -f dist/reports/validation_summary.md ]; then
+            hf discussions comment \
+              embeddingsSSRF/gene_embeddings_staging \
+              "$HF_PR_NUMBER" \
+              --repo-type dataset \
+              --body-file \
+                dist/reports/validation_summary.md
+          else
+            hf discussions comment \
+              embeddingsSSRF/gene_embeddings_staging \
+              "$HF_PR_NUMBER" \
+              --repo-type dataset \
+              --body \
+                "Automatic validation failed before a complete report could be generated. Nothing was published."
+          fi
+
+      - name: Stop when validation did not strictly pass
+        if: steps.release.outputs.exit_code != '0'
+        run: |
+          echo "The Hugging Face submission was not published."
+          exit 1
+
+      - name: Publish the accepted package centrally
+        env:
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          EMBEDDING_ID: ${{ steps.inspect.outputs.embedding_id }}
+          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
+        run: |
+          set -euo pipefail
+
+          hf upload \
+            embeddingsSSRF/gene_embeddings_staging \
+            dist/dataset \
+            . \
+            --repo-type dataset \
+            --commit-message \
+              "Accept ${EMBEDDING_ID} from HF PR #${HF_PR_NUMBER}"
+
+      - name: Publish the updated static Space
+        env:
+          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
+          EMBEDDING_ID: ${{ steps.inspect.outputs.embedding_id }}
+          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
+        run: |
+          set -euo pipefail
+
+          hf upload \
+            embeddingsSSRF/Gene-Embeddings-Staging \
+            dist/space \
+            . \
+            --repo-type space \
+            --commit-message \
+              "Add ${EMBEDDING_ID} from HF PR #${HF_PR_NUMBER}"
+
+      - name: Report acceptance and close the Hugging Face PR
+        env:
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          EMBEDDING_ID: ${{ steps.inspect.outputs.embedding_id }}
+          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
+        run: |
+          set -euo pipefail
+
+          cp \
+            dist/reports/validation_summary.md \
+            hf-pr-success-comment.md
+
+          cat >> hf-pr-success-comment.md <<EOF
+
+          ## Publication
+
+          The submission has been accepted and centrally archived as:
+
+          \`data/embeddings/${EMBEDDING_ID}\`
+
+          The registry and staging Space were updated automatically.
+          EOF
+
+          hf discussions comment \
+            embeddingsSSRF/gene_embeddings_staging \
+            "$HF_PR_NUMBER" \
+            --repo-type dataset \
+            --body-file hf-pr-success-comment.md
+
+          hf discussions close \
+            embeddingsSSRF/gene_embeddings_staging \
+            "$HF_PR_NUMBER" \
+            --repo-type dataset \
+            --yes \
+            --comment \
+              "Accepted and centrally archived. Thank you for the contribution."
+
