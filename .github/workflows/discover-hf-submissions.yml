@@ -1,0 +1,128 @@
+name: Discover Hugging Face submissions
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+  id-token: write
+
+concurrency:
+  group: discover-hf-submissions
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out trusted default branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install discovery tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e .
+          python -m pip install \
+            "huggingface_hub>=1.19.0"
+
+      - name: Discover and dispatch one submission
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HF_RESOURCE: >-
+            datasets/embeddingsSSRF/gene_embeddings_staging
+        run: |
+          set -euo pipefail
+
+          hf_token="$(
+            bash scripts/exchange_hf_oidc_token.sh \
+              "$HF_RESOURCE"
+          )"
+
+          echo "::add-mask::$hf_token"
+          export HF_TOKEN="$hf_token"
+
+          python scripts/discover_hf_submission.py \
+            --repo-id \
+              embeddingsSSRF/gene_embeddings_staging \
+            --repo-type dataset \
+            --output discovery.json
+
+          cat discovery.json
+
+          if ! jq -e '.found == true' \
+            discovery.json > /dev/null
+          then
+            echo "No new submission requires processing."
+            exit 0
+          fi
+
+          pr_number="$(
+            jq -r '.pr_number' discovery.json
+          )"
+
+          pr_author="$(
+            jq -r '.pr_author' discovery.json
+          )"
+
+          head_sha="$(
+            jq -r '.head_sha' discovery.json
+          )"
+
+          jq -n \
+            --arg ref "main" \
+            --arg mode "hf_portal_pr" \
+            --arg accepted_commit "main" \
+            --arg submission_file "" \
+            --arg hf_pr_number "$pr_number" \
+            --arg hf_pr_author "$pr_author" \
+            '{
+              ref: $ref,
+              inputs: {
+                mode: $mode,
+                accepted_commit: $accepted_commit,
+                submission_file: $submission_file,
+                hf_pr_number: $hf_pr_number,
+                hf_pr_author: $hf_pr_author
+              }
+            }' \
+            > workflow-dispatch.json
+
+          gh api \
+            --method POST \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/publish.yml/dispatches" \
+            --input workflow-dispatch.json
+
+          cat > dispatch-comment.md <<EOF
+          <!-- gene-embeddings-auto-dispatched:${head_sha} -->
+
+          Automatic validation has been queued for this Pull Request revision.
+
+          - PR: #${pr_number}
+          - Revision: \`${head_sha}\`
+
+          A new commit to this Pull Request will be treated as a new revision and may be validated again.
+          EOF
+
+          python scripts/manage_hf_pr.py \
+            --repo-id \
+              embeddingsSSRF/gene_embeddings_staging \
+            --repo-type dataset \
+            --pr-number "$pr_number" \
+            --comment-file dispatch-comment.md
+
+          echo "Dispatched Hugging Face PR #${pr_number}."
