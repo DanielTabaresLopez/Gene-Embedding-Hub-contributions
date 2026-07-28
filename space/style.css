@@ -60,9 +60,10 @@ dialog::backdrop { background: rgba(12,20,40,.55); }
   margin-bottom: 12px;
 }
 
-.community-badge {
-  background: #e4f5ee;
-  color: var(--success);
+.card .community-badge {
+  background: #253044;
+  color: #ffffff;
+  border: 1px solid #253044;
 }
 
 .button-row {
@@ -337,3 +338,19 @@ html {
     padding: 24px 18px;
   }
 }
+
+/* Summary statistic color */
+.stats article {
+  background: #eaf0ff;
+  border-color: #afc2f2;
+  box-shadow: 0 8px 28px rgba(49, 87, 213, 0.12);
+}
+
+.stats strong {
+  color: #2448b8;
+}
+
+.stats span {
+  color: #53658f;
+}
+/* End summary statistic color */
