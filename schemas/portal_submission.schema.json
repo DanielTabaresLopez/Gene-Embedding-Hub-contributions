@@ -31,17 +31,12 @@
       "additionalProperties": false,
       "required": [
         "name",
-        "email",
         "affiliation"
       ],
       "properties": {
         "name": {
           "type": "string",
           "minLength": 2
-        },
-        "email": {
-          "type": "string",
-          "format": "email"
         },
         "affiliation": {
           "type": "string",

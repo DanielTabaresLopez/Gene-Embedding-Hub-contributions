@@ -72,3 +72,48 @@ def test_zero_vector_fails(tmp_path: Path):
     result = run_validation(submission, "config/policy.yaml", master, "schemas", tmp_path / "out", package)
     assert result.outcome == "FAIL"
     assert any(check.check_id == "matrix.zero_vectors" and check.status == "FAIL" for check in result.checks)
+
+
+def test_portal_submission_passes(
+    tmp_path: Path,
+) -> None:
+    package, legacy_submission, master = make_package(
+        tmp_path
+    )
+
+    portal_document = yaml.safe_load(
+        legacy_submission.read_text(
+            encoding="utf-8"
+        )
+    )
+
+    portal_document.pop("candidate")
+    portal_document["contributor"].pop(
+        "email"
+    )
+
+    portal_submission = (
+        tmp_path / "portal_submission.yaml"
+    )
+
+    portal_submission.write_text(
+        yaml.safe_dump(
+            portal_document,
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+
+    result = run_validation(
+        portal_submission,
+        "config/policy.yaml",
+        master,
+        "schemas",
+        tmp_path / "portal-out",
+        package,
+        submission_schema_name=(
+            "portal_submission.schema.json"
+        ),
+    )
+
+    assert result.outcome == "PASS"
