@@ -1,8 +1,7 @@
 # Submit a gene embedding through Hugging Face
 
-Contributors submit directly to the library-owned Hugging Face
-Dataset. No GitHub account, GitHub fork, separate Dataset, or
-commit SHA is needed.
+Contributors submit directly to the library-owned Hugging Face Dataset.
+No GitHub account, GitHub fork, separate Dataset, or commit SHA is needed.
 
 ## Required folder
 
@@ -17,8 +16,8 @@ Prepare one folder named with a unique embedding ID:
 └── submission.yaml
 ~~~
 
-The embedding ID must use lowercase letters, numbers, dots,
-underscores, or hyphens.
+The embedding ID must use lowercase letters, numbers, dots, underscores,
+or hyphens.
 
 Start from `portal_template/submission.yaml`.
 
@@ -30,19 +29,13 @@ Upload the complete folder to:
 incoming/<embedding_id>
 ~~~
 
-Select the option to create a Pull Request rather than committing
-directly to `main`.
+Select the option to create a Pull Request rather than committing directly
+to `main`.
 
 Command-line example:
 
 ~~~bash
-hf upload \
-  embeddingsSSRF/gene_embeddings_staging \
-  ./<embedding_id> \
-  incoming/<embedding_id> \
-  --repo-type dataset \
-  --create-pr \
-  --commit-message "Submit <embedding_id>"
+hf upload   embeddingsSSRF/gene_embeddings_staging   ./<embedding_id>   incoming/<embedding_id>   --repo-type dataset   --create-pr   --commit-message "Submit <embedding_id>"
 ~~~
 
 ## Categories
@@ -61,8 +54,9 @@ Recommended catalog categories:
 - Regulatory
 - Single-cell
 
-Matching is case-insensitive. A different value is accepted but
-displayed under `Other`. The submitted value remains preserved.
+Matching is case-insensitive. A different value is accepted but displayed
+under `Other`. The submitted value remains preserved in the provenance and
+validation report.
 
 ## Automatic processing
 
@@ -76,3 +70,17 @@ GitHub Actions will:
 6. close the Pull Request after publication.
 
 Failed submissions are not published.
+
+## Privacy and central storage
+
+Do not place personal email addresses, patient information, access tokens,
+credentials, or other sensitive information in the submission folder.
+
+After a strict validation PASS, the complete package is copied to:
+
+~~~text
+data/embeddings/<embedding_id>
+~~~
+
+inside the library-owned Hugging Face Dataset. The catalog then links to this
+central copy rather than to contributor-owned storage.

@@ -1,29 +1,17 @@
 schema_version: 1
-
 embedding_id: replace_with_unique_embedding_id
 display_name: Replace with the displayed embedding name
-
 contributor:
   name: Replace with contributor name
-  email: replace@example.org
   affiliation: Replace with institution or organization
-
 scientific:
-  # Recommended categories:
-  # DNA, Expression, Functional Genomics, Knowledge,
-  # Literature, Multimodal, Network, Protein, RNA,
-  # Regulatory, Single-cell.
-  #
-  # Another value is allowed, but it will be displayed as Other.
   broad_modality: Protein
   detailed_modality: Replace with a precise modality description
   original_method: Replace with the model or generation method
   model_checkpoint: Replace with checkpoint/version or not-applicable
-  source_publication: ""
-  description: >-
-    Replace this text with a clear description of the embedding,
-    how it was generated, and its intended use.
-
+  source_publication: ''
+  description: Replace this text with a clear description of the embedding, how it
+    was generated, and its intended use.
 provenance:
   embedding_generated_by: Replace with model, software, or authors
   input_data_source: Replace with the original data source
@@ -32,12 +20,10 @@ provenance:
   pooling_strategy: Replace with pooling strategy or not-applicable
   identifier_before_mapping: Replace with original identifier type
   mapping_method: Replace with the identifier mapping procedure
-
 licensing:
   source_license: cc-by-4.0
   redistribution_allowed: true
   terms_url: Replace with the applicable license or terms URL
-
 attestations:
   information_is_accurate: true
   rights_to_redistribute: true
