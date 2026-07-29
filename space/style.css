@@ -427,3 +427,74 @@ html[data-theme="night"] .theme-toggle {
     font-size: 1.1rem;
   }
 }
+
+
+/* NIGHT PANEL TONES */
+
+/*
+The large inset shadow darkens the existing panel background while
+preserving its original category hue. It does not darken the text.
+*/
+
+html[data-theme="night"] .card,
+html[data-theme="night"] .stats article,
+html[data-theme="night"] .contribute,
+html[data-theme="night"] dialog,
+html[data-theme="night"] .detail-grid div {
+  color: #f1f5f9;
+  border-color: rgba(148, 163, 184, .30);
+
+  box-shadow:
+    inset 0 0 0 9999px rgba(4, 10, 20, .43),
+    0 10px 28px rgba(0, 0, 0, .30);
+}
+
+html[data-theme="night"] .card:hover {
+  border-color: rgba(203, 213, 225, .48);
+
+  box-shadow:
+    inset 0 0 0 9999px rgba(4, 10, 20, .34),
+    0 14px 34px rgba(0, 0, 0, .40);
+}
+
+html[data-theme="night"] .card h3,
+html[data-theme="night"] .stats strong,
+html[data-theme="night"] .metrics strong,
+html[data-theme="night"] .detail-grid strong,
+html[data-theme="night"] .contribute h2,
+html[data-theme="night"] dialog h2 {
+  color: #f8fafc;
+}
+
+html[data-theme="night"] .card p,
+html[data-theme="night"] .stats span,
+html[data-theme="night"] .metrics,
+html[data-theme="night"] .result-count,
+html[data-theme="night"] dialog p {
+  color: #cbd5e1;
+}
+
+html[data-theme="night"] .metrics {
+  border-top-color: rgba(203, 213, 225, .25);
+}
+
+html[data-theme="night"] input,
+html[data-theme="night"] select {
+  color: #e7edf8;
+  background: #151d2c;
+  border-color: #3b4a61;
+}
+
+html[data-theme="night"] input::placeholder {
+  color: #94a3b8;
+}
+
+html[data-theme="night"] code {
+  color: #e2e8f0;
+  background: rgba(5, 10, 20, .72);
+  border-color: rgba(148, 163, 184, .28);
+}
+
+html[data-theme="night"] dialog::backdrop {
+  background: rgba(0, 4, 12, .72);
+}
