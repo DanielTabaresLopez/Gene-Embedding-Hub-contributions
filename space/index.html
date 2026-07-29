@@ -219,33 +219,22 @@
           </p>
         </article>
 
-        <article class="instruction-card">
+                <article class="instruction-card">
           <span class="step-number">4</span>
 
           <h3>Upload as a Pull Request</h3>
-
           <ol>
             <li>
               Open the Hugging Face uploader using the button below.
             </li>
 
             <li>
-              Upload the five files under
-              <code>incoming/&lt;embedding_id&gt;/</code>.
-            </li>
-
-            <li>
-              Enter a message such as
-              <code>Submit &lt;embedding_id&gt;</code>.
+              Upload the folder
+              <code>&lt;embedding_id&gt;</code>.
             </li>
 
             <li>
               Select <strong>Open as a pull request</strong>.
-            </li>
-
-            <li>
-              Do not commit the files directly to
-              <code>main</code>.
             </li>
           </ol>
         </article>
@@ -293,7 +282,7 @@
         <pre><code>hf upload \
   embeddingsSSRF/gene_embeddings_staging \
   ./&lt;embedding_id&gt; \
-  incoming/&lt;embedding_id&gt; \
+  &lt;embedding_id&gt; \
   --repo-type dataset \
   --create-pr \
   --commit-message "Submit &lt;embedding_id&gt;"</code></pre>
