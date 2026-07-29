@@ -14,8 +14,8 @@ gene-embedding library hosted on Hugging Face.
   community catalog and links contributors to the Hub uploader.
 - **GitHub Actions** inspects Hugging Face PR repository trees,
   validates submitted packages, updates the registry and Space,
-  and closes accepted PRs without merging their raw
-  `incoming/` folders.
+  and closes accepted PRs without merging the original
+  submission folders.
 - **Contributors** need a Hugging Face account but do not need a
   GitHub account, GitHub fork, separate Dataset, or commit SHA.
 

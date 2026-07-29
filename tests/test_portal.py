@@ -12,9 +12,9 @@ def make_diff(paths: list[str]) -> str:
     )
 
 
-def valid_paths() -> list[str]:
-    root = "incoming/example_embedding"
-
+def valid_paths(
+    root: str = "example_embedding",
+) -> list[str]:
     return [
         f"{root}/embeddings.npz",
         f"{root}/genes.tsv",
@@ -24,9 +24,29 @@ def valid_paths() -> list[str]:
     ]
 
 
-def test_valid_portal_submission() -> None:
+def test_valid_root_folder_submission() -> None:
     result = inspect_portal_diff(
         make_diff(valid_paths())
+    )
+
+    assert (
+        result["embedding_id"]
+        == "example_embedding"
+    )
+
+    assert (
+        result["package_path"]
+        == "example_embedding"
+    )
+
+
+def test_legacy_incoming_submission() -> None:
+    result = inspect_portal_diff(
+        make_diff(
+            valid_paths(
+                "incoming/example_embedding"
+            )
+        )
     )
 
     assert (
@@ -43,12 +63,29 @@ def test_valid_portal_submission() -> None:
 def test_rejects_changes_outside_folder() -> None:
     paths = (
         valid_paths()
-        + ["data/community_contributions/community_registry.json"]
+        + [
+            "data/community_contributions/"
+            "community_registry.json"
+        ]
     )
 
     with pytest.raises(
         ValueError,
-        match="may change only files",
+        match="directly inside",
+    ):
+        inspect_portal_diff(
+            make_diff(paths)
+        )
+
+
+def test_rejects_nested_wrapper_folder() -> None:
+    paths = valid_paths(
+        "upload_wrapper/example_embedding"
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="directly inside",
     ):
         inspect_portal_diff(
             make_diff(paths)
@@ -77,7 +114,7 @@ def test_rejects_multiple_embeddings() -> None:
     paths = (
         valid_paths()
         + [
-            "incoming/second_embedding/"
+            "second_embedding/"
             "embeddings.npz"
         ]
     )
@@ -85,6 +122,18 @@ def test_rejects_multiple_embeddings() -> None:
     with pytest.raises(
         ValueError,
         match="exactly one embedding folder",
+    ):
+        inspect_portal_diff(
+            make_diff(paths)
+        )
+
+
+def test_rejects_reserved_data_folder() -> None:
+    paths = valid_paths("data")
+
+    with pytest.raises(
+        ValueError,
+        match="Reserved repository folder",
     ):
         inspect_portal_diff(
             make_diff(paths)

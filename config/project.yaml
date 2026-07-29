@@ -9,10 +9,10 @@ core_dataset_revision: 326b257a20e73df337ece40bb82401e277851f5b
 core_expected_count: 68
 
 dataset_package_root: data/community_contributions
-portal_submission_root: incoming
+portal_submission_root: .
 portal_storage_mode: central_hf_dataset
 community_storage_mode: external_reference
-dataset_validation_root: data/community_validation
+dataset_validation_root: data/community_contributions
 dataset_registry_file: data/community_contributions/community_registry.json
 dataset_community_manifest_file: data/community_contributions/community_manifest.csv
 space_catalog_file: catalog.json

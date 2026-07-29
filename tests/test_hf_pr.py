@@ -66,7 +66,7 @@ def test_compare_repo_trees() -> None:
 def test_additions_only_passes() -> None:
     changes = [
         {
-            "path": "incoming/example/README.md",
+            "path": "example/README.md",
             "action": "ADDED",
         }
     ]
@@ -75,8 +75,8 @@ def test_additions_only_passes() -> None:
 
     assert render_synthetic_diff(changes) == (
         "diff --git "
-        "a/incoming/example/README.md "
-        "b/incoming/example/README.md\n"
+        "a/example/README.md "
+        "b/example/README.md\n"
     )
 
 

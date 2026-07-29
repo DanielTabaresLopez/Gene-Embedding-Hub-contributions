@@ -33,7 +33,7 @@ Start from `portal_template/submission.yaml`.
 4. Upload the five files under:
 
    ~~~text
-   incoming/<embedding_id>/
+   <embedding_id>/
    ~~~
 
 5. Enter a descriptive commit message.
@@ -48,7 +48,7 @@ Start from `portal_template/submission.yaml`.
 hf upload \
   embeddingsSSRF/gene_embeddings_staging \
   ./<embedding_id> \
-  incoming/<embedding_id> \
+  <embedding_id> \
   --repo-type dataset \
   --create-pr \
   --commit-message "Submit <embedding_id>"
@@ -92,10 +92,10 @@ GitHub Actions:
 Accepted packages are centrally archived under:
 
 ~~~text
-data/embeddings/<embedding_id>/
+data/community_contributions/<embedding_id>/
 ~~~
 
-The original `incoming/` proposal is not merged into `main`.
+The original proposal folder is not merged into staging `main`.
 
 Failed submissions are not published.
 
