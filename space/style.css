@@ -431,27 +431,17 @@ html[data-theme="night"] .theme-toggle {
 /* NIGHT COLORED PANELS */
 
 /*
-Darken each card's existing category color without replacing its hue.
-The filtering layer stays behind all text, badges, and metrics.
+Very subtle darkening:
+- preserves each category hue;
+- does not recolor text, borders, or badges;
+- avoids gray or washed-out cards.
 */
 
 html[data-theme="night"] .card {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-
-  color: #f8fafc;
-  border-color: rgba(226, 232, 240, .55);
-
-  box-shadow:
-    0 10px 26px rgba(0, 0, 0, .34);
 }
-
-/*
-The fallback is a very light darkening layer.
-Modern browsers additionally apply brightness and saturation to the
-original category-colored background behind this layer.
-*/
 
 html[data-theme="night"] .card::before {
   content: "";
@@ -460,15 +450,15 @@ html[data-theme="night"] .card::before {
   z-index: 0;
   pointer-events: none;
 
-  background: rgba(3, 8, 18, .10);
+  background: rgba(0, 0, 0, .01);
 
   -webkit-backdrop-filter:
-    brightness(.58)
-    saturate(1.65);
+    brightness(.88)
+    saturate(1.08);
 
   backdrop-filter:
-    brightness(.58)
-    saturate(1.65);
+    brightness(.88)
+    saturate(1.08);
 }
 
 html[data-theme="night"] .card > * {
@@ -476,44 +466,12 @@ html[data-theme="night"] .card > * {
   z-index: 1;
 }
 
-html[data-theme="night"] .card:hover {
-  border-color: rgba(248, 250, 252, .75);
-
-  box-shadow:
-    0 14px 34px rgba(0, 0, 0, .44);
-}
-
 html[data-theme="night"] .card:hover::before {
   -webkit-backdrop-filter:
-    brightness(.66)
-    saturate(1.7);
+    brightness(.92)
+    saturate(1.08);
 
   backdrop-filter:
-    brightness(.66)
-    saturate(1.7);
-}
-
-html[data-theme="night"] .card h3,
-html[data-theme="night"] .card .metrics strong {
-  color: #ffffff;
-}
-
-html[data-theme="night"] .card p,
-html[data-theme="night"] .card .metrics {
-  color: #e2e8f0;
-}
-
-html[data-theme="night"] .card .metrics {
-  border-top-color: rgba(241, 245, 249, .28);
-}
-
-/*
-Badges keep their original category colors.
-They are not affected by the card-background filter.
-*/
-
-html[data-theme="night"] .card .badge {
-  filter:
-    saturate(1.12)
-    brightness(.95);
+    brightness(.92)
+    saturate(1.08);
 }
