@@ -50,7 +50,7 @@ def test_all_submission_instructions_are_on_main_page() -> None:
     )
 
     assert (
-        "generated only after"
+        "generated after acceptance"
         in index
     )
 
@@ -136,3 +136,67 @@ def test_category_card_palettes_are_present() -> None:
 
     for category in CATEGORIES:
         assert f".category-{category}" in style
+
+def test_portal_optional_and_required_fields() -> None:
+    schema = json.loads(
+        read(
+            "schemas/portal_submission.schema.json"
+        )
+    )
+
+    assert "contributor" not in schema["required"]
+
+    scientific = schema[
+        "properties"
+    ]["scientific"]
+
+    assert scientific["required"] == [
+        "category",
+        "modality",
+        "description",
+    ]
+
+    provenance = schema[
+        "properties"
+    ]["provenance"]
+
+    assert provenance["required"] == [
+        "species",
+        "identifier_before_mapping",
+        "mapping_method",
+    ]
+
+    licensing = schema[
+        "properties"
+    ]["licensing"]
+
+    assert licensing["required"] == [
+        "redistribution_allowed",
+    ]
+
+    source = yaml.safe_load(
+        read("portal_template/submission.yaml")
+    )
+
+    deployed = yaml.safe_load(
+        read("space/submission.yaml")
+    )
+
+    assert source == deployed
+    assert "contributor" not in source
+
+    assert set(source["scientific"]) == {
+        "category",
+        "modality",
+        "description",
+    }
+
+    assert set(source["provenance"]) == {
+        "species",
+        "identifier_before_mapping",
+        "mapping_method",
+    }
+
+    assert source["licensing"] == {
+        "redistribution_allowed": True,
+    }

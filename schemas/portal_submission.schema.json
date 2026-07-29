@@ -7,7 +7,6 @@
     "schema_version",
     "embedding_id",
     "display_name",
-    "contributor",
     "scientific",
     "provenance",
     "licensing",
@@ -50,8 +49,6 @@
       "required": [
         "category",
         "modality",
-        "original_method",
-        "model_checkpoint",
         "description"
       ],
       "properties": {
@@ -89,11 +86,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "embedding_generated_by",
-        "input_data_source",
-        "input_data_release",
         "species",
-        "pooling_strategy",
         "identifier_before_mapping",
         "mapping_method"
       ],
@@ -132,9 +125,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "source_license",
-        "redistribution_allowed",
-        "terms_url"
+        "redistribution_allowed"
       ],
       "properties": {
         "source_license": {
@@ -146,7 +137,8 @@
         },
         "terms_url": {
           "type": "string",
-          "minLength": 5
+          "minLength": 5,
+          "format": "uri"
         }
       }
     },

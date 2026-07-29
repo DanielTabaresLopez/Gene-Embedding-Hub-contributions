@@ -60,18 +60,6 @@ def test_legacy_incoming_submission() -> None:
 
 
 
-def test_rejects_user_supplied_metadata() -> None:
-    paths = valid_paths() + [
-        "example_embedding/metadata.json"
-    ]
-
-    with pytest.raises(
-        ValueError,
-        match="Unexpected submission file",
-    ):
-        inspect_portal_diff(
-            make_diff(paths)
-        )
 
 def test_rejects_changes_outside_folder() -> None:
     paths = (
@@ -151,3 +139,17 @@ def test_rejects_reserved_data_folder() -> None:
         inspect_portal_diff(
             make_diff(paths)
         )
+
+def test_accepts_legacy_metadata_file() -> None:
+    paths = valid_paths() + [
+        "example_embedding/metadata.json"
+    ]
+
+    result = inspect_portal_diff(
+        make_diff(paths)
+    )
+
+    assert (
+        "example_embedding/metadata.json"
+        in result["changed_files"]
+    )

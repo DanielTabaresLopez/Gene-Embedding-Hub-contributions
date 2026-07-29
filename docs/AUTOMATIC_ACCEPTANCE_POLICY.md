@@ -14,7 +14,7 @@ The default starter policy checks:
 - coverage against the 20,097-gene master universe;
 - finite values, no zero vectors, and no constant columns or exact duplicate vectors when policy requires them;
 - submission schema, contributor-provided provenance, and automatic metadata generation;
-- allowlisted license declaration and affirmative redistribution attestations;
+- allowlisted source-license identifier when supplied, plus mandatory redistribution and rights attestations;
 - exact checksum duplicate rejection against prior automatic contributions.
 
 ## Not verified by a computer

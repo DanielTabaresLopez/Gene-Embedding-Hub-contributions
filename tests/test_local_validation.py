@@ -144,3 +144,96 @@ def test_portal_submission_passes(
         and check.status == "INFO"
         for check in result.checks
     )
+
+def test_minimal_portal_submission_passes(
+    tmp_path: Path,
+) -> None:
+    package, legacy_submission, master = make_package(
+        tmp_path
+    )
+
+    document = yaml.safe_load(
+        legacy_submission.read_text(
+            encoding="utf-8"
+        )
+    )
+
+    document.pop("candidate")
+    document.pop("contributor")
+
+    scientific = document["scientific"]
+
+    scientific["category"] = scientific.pop(
+        "broad_modality"
+    )
+
+    scientific["modality"] = scientific.pop(
+        "detailed_modality"
+    )
+
+    for field in (
+        "original_method",
+        "model_checkpoint",
+        "source_publication",
+    ):
+        scientific.pop(field, None)
+
+    provenance = document["provenance"]
+
+    for field in (
+        "embedding_generated_by",
+        "input_data_source",
+        "input_data_release",
+        "pooling_strategy",
+    ):
+        provenance.pop(field, None)
+
+    licensing = document["licensing"]
+
+    licensing.pop(
+        "source_license",
+        None,
+    )
+
+    licensing.pop(
+        "terms_url",
+        None,
+    )
+
+    submission = (
+        tmp_path
+        / "minimal_portal_submission.yaml"
+    )
+
+    submission.write_text(
+        yaml.safe_dump(
+            document,
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+
+    (
+        package / "metadata.json"
+    ).unlink()
+
+    result = run_validation(
+        submission,
+        "config/policy.yaml",
+        master,
+        "schemas",
+        tmp_path / "minimal-portal-out",
+        package,
+        submission_schema_name=(
+            "portal_submission.schema.json"
+        ),
+        submitted_metadata_required=False,
+    )
+
+    assert result.outcome == "PASS"
+
+    assert any(
+        check.check_id == "policy.license"
+        and check.status == "INFO"
+        for check in result.checks
+    )

@@ -171,11 +171,18 @@
               the matrix rows.
             </li>
             <li>
-              <code>submission.yaml</code> supplies the descriptive
-              metadata. Dimensions, dtype, gene count, coverage and
-              checksums are measured automatically. A consolidated
-              <code>metadata.json</code> is generated only after the
-              submission is accepted.
+              <code>submission.yaml</code> supplies the description
+              and the provenance needed to interpret
+              <code>genes.tsv</code>. Species, original identifier
+              type and mapping method are required. Contributor,
+              method, checkpoint, source, release, pooling, license
+              and terms URL fields are optional.
+            </li>
+
+            <li>
+              Dimensions, dtype, gene count and coverage are measured
+              automatically. A compact <code>metadata.json</code> is
+              generated after acceptance.
             </li>
 
             <li>

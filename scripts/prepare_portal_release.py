@@ -86,6 +86,119 @@ def central_urls(
     )
 
 
+
+def build_generated_metadata(
+    submission: dict[str, Any],
+    result_summary: dict[str, Any],
+    hf_pr_author: str,
+    accepted_at: str,
+) -> dict[str, Any]:
+    scientific = submission["scientific"]
+    provenance = submission["provenance"]
+    licensing = submission["licensing"]
+
+    metadata: dict[str, Any] = {
+        "embedding_id": submission["embedding_id"],
+        "display_name": submission["display_name"],
+        "category": submission_category(
+            submission
+        ),
+        "modality": submission_modality(
+            submission
+        ),
+        "description": scientific["description"],
+        "species": provenance["species"],
+        "original_identifier_type": provenance[
+            "identifier_before_mapping"
+        ],
+        "mapping_method": provenance[
+            "mapping_method"
+        ],
+        "redistribution_allowed": licensing[
+            "redistribution_allowed"
+        ],
+        "n_genes": result_summary["n_genes"],
+        "n_dimensions": result_summary[
+            "n_dimensions"
+        ],
+        "dtype": result_summary["dtype"],
+        "npz_key": result_summary["npz_key"],
+        "master_coverage_fraction": (
+            result_summary[
+                "master_coverage_fraction"
+            ]
+        ),
+        "validation_outcome": "PASS",
+        "accepted_at_utc": accepted_at,
+        "metadata_generated_automatically": True,
+    }
+
+    optional_values = {
+        "original_method": scientific.get(
+            "original_method"
+        ),
+        "model_checkpoint": scientific.get(
+            "model_checkpoint"
+        ),
+        "publication": scientific.get(
+            "source_publication"
+        ),
+        "embedding_generated_by": provenance.get(
+            "embedding_generated_by"
+        ),
+        "input_data_source": provenance.get(
+            "input_data_source"
+        ),
+        "input_data_release": provenance.get(
+            "input_data_release"
+        ),
+        "pooling_strategy": provenance.get(
+            "pooling_strategy"
+        ),
+        "source_license": licensing.get(
+            "source_license"
+        ),
+        "terms_url": licensing.get(
+            "terms_url"
+        ),
+    }
+
+    for key, value in optional_values.items():
+        if (
+            isinstance(value, str)
+            and value.strip()
+        ):
+            metadata[key] = value.strip()
+
+    contributor_metadata: dict[str, str] = {
+        "huggingface_username": hf_pr_author,
+    }
+
+    contributor = submission.get(
+        "contributor"
+    )
+
+    if isinstance(contributor, dict):
+        for key in (
+            "name",
+            "affiliation",
+        ):
+            value = contributor.get(key)
+
+            if (
+                isinstance(value, str)
+                and value.strip()
+            ):
+                contributor_metadata[key] = (
+                    value.strip()
+                )
+
+    metadata["contributor"] = (
+        contributor_metadata
+    )
+
+    return metadata
+
 def main() -> int:
     parser = argparse.ArgumentParser()
 
@@ -362,142 +475,12 @@ def main() -> int:
         timezone.utc
     ).isoformat()
 
-    uploaded_files = [
-        "embeddings.npz",
-        "genes.tsv",
-        "README.md",
-        "submission.yaml",
-    ]
-
-    file_sizes_bytes = {
-        filename: (
-            package_target / filename
-        ).stat().st_size
-        for filename in uploaded_files
-    }
-
-    generated_metadata = {
-        "schema_version": 1,
-        "embedding_id": embedding_id,
-        "display_name": submission[
-            "display_name"
-        ],
-        "category": submitted_category,
-        "modality": submitted_modality,
-        "description": submission[
-            "scientific"
-        ]["description"],
-        "species": submission[
-            "provenance"
-        ]["species"],
-        "original_method": submission[
-            "scientific"
-        ]["original_method"],
-        "model_checkpoint": submission[
-            "scientific"
-        ]["model_checkpoint"],
-        "publication": submission[
-            "scientific"
-        ].get(
-            "source_publication",
-            "",
-        ),
-        "embedding_generated_by": submission[
-            "provenance"
-        ]["embedding_generated_by"],
-        "input_data_source": submission[
-            "provenance"
-        ]["input_data_source"],
-        "input_data_release": submission[
-            "provenance"
-        ]["input_data_release"],
-        "pooling_strategy": submission[
-            "provenance"
-        ]["pooling_strategy"],
-        "original_identifier_type": submission[
-            "provenance"
-        ]["identifier_before_mapping"],
-        "mapping_method": submission[
-            "provenance"
-        ]["mapping_method"],
-        "source_license": submission[
-            "licensing"
-        ]["source_license"],
-        "redistribution_allowed": submission[
-            "licensing"
-        ]["redistribution_allowed"],
-        "terms_url": submission[
-            "licensing"
-        ]["terms_url"],
-        "contributor": {
-            "name": submission[
-                "contributor"
-            ]["name"],
-            "affiliation": submission[
-                "contributor"
-            ]["affiliation"],
-            "huggingface_username": (
-                args.hf_pr_author
-            ),
-        },
-        "n_genes": result.summary[
-            "n_genes"
-        ],
-        "n_dimensions": result.summary[
-            "n_dimensions"
-        ],
-        "dtype": result.summary[
-            "dtype"
-        ],
-        "npz_key": result.summary[
-            "npz_key"
-        ],
-        "master_genes_matched": result.summary[
-            "master_genes_matched"
-        ],
-        "master_coverage_fraction": (
-            result.summary[
-                "master_coverage_fraction"
-            ]
-        ),
-        "unknown_identifier_fraction": (
-            result.summary[
-                "unknown_identifier_fraction"
-            ]
-        ),
-        "zero_vectors": result.summary[
-            "zero_vectors"
-        ],
-        "duplicate_vectors": result.summary[
-            "duplicate_vectors"
-        ],
-        "constant_columns": result.summary[
-            "constant_columns"
-        ],
-        "value_min": result.summary[
-            "value_min"
-        ],
-        "value_max": result.summary[
-            "value_max"
-        ],
-        "norm_min": result.summary[
-            "norm_min"
-        ],
-        "norm_median": result.summary[
-            "norm_median"
-        ],
-        "norm_max": result.summary[
-            "norm_max"
-        ],
-        "embeddings_sha256": checksum,
-        "checksums_sha256": result.summary[
-            "checksums_sha256"
-        ],
-        "file_sizes_bytes": file_sizes_bytes,
-        "validation_outcome": result.outcome,
-        "accepted_at_utc": accepted_at,
-        "metadata_generated_automatically": True,
-    }
+    generated_metadata = build_generated_metadata(
+        submission=submission,
+        result_summary=result.summary,
+        hf_pr_author=args.hf_pr_author,
+        accepted_at=accepted_at,
+    )
 
     validate_document(
         generated_metadata,
@@ -507,6 +490,42 @@ def main() -> int:
     write_json(
         package_target / "metadata.json",
         generated_metadata,
+    )
+
+    contributor = submission.get(
+        "contributor"
+    )
+
+    if not isinstance(contributor, dict):
+        contributor = {}
+
+    contributor_name = (
+        contributor.get("name")
+        or args.hf_pr_author
+    )
+
+    contributor_affiliation = (
+        contributor.get("affiliation")
+        or "Not provided"
+    )
+
+    source_license = (
+        submission["licensing"].get(
+            "source_license"
+        )
+        or ""
+    )
+
+    catalog_license = (
+        source_license
+        or "Not provided"
+    )
+
+    catalog_algorithm = (
+        submission["scientific"].get(
+            "original_method"
+        )
+        or "Not provided"
     )
 
     pr_url = (
@@ -544,12 +563,10 @@ def main() -> int:
     registry_entry = {
         "embedding_id": embedding_id,
         "display_name": submission["display_name"],
-        "contributor_name": submission[
-            "contributor"
-        ]["name"],
-        "contributor_affiliation": submission[
-            "contributor"
-        ]["affiliation"],
+        "contributor_name": contributor_name,
+        "contributor_affiliation": (
+            contributor_affiliation
+        ),
         "contributor_hf_username": (
             args.hf_pr_author
         ),
@@ -575,9 +592,7 @@ def main() -> int:
         "master_coverage_fraction": result.summary[
             "master_coverage_fraction"
         ],
-        "source_license": submission[
-            "licensing"
-        ]["source_license"],
+        "source_license": source_license,
         "embeddings_sha256": checksum,
         "storage_mode": storage_mode,
         "package_path": package_path,
@@ -644,12 +659,10 @@ def main() -> int:
         {
             "id": embedding_id,
             "name": submission["display_name"],
-            "contributor_name": submission[
-                "contributor"
-            ]["name"],
-            "contributor_affiliation": submission[
-                "contributor"
-            ]["affiliation"],
+            "contributor_name": contributor_name,
+            "contributor_affiliation": (
+                contributor_affiliation
+            ),
             "contributor_hf_username": (
                 args.hf_pr_author
             ),
@@ -663,9 +676,7 @@ def main() -> int:
                 submitted_category
             ),
             "modality": submitted_modality,
-            "algorithm": submission[
-                "scientific"
-            ]["original_method"],
+            "algorithm": catalog_algorithm,
             "description": submission[
                 "scientific"
             ]["description"],
@@ -685,9 +696,7 @@ def main() -> int:
                 "trace_gene"
             ],
             "qc_status": "AUTO_PASS",
-            "license": submission[
-                "licensing"
-            ]["source_license"],
+            "license": catalog_license,
             "dataset_path": package_path,
             "package_url": package_url,
             "metadata_url": metadata_url,

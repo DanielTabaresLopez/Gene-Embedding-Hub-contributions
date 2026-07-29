@@ -1,36 +1,56 @@
 schema_version: 1
 embedding_id: replace_with_unique_embedding_id
 display_name: Replace with the displayed embedding name
-contributor:
-  name: Replace with contributor name
-  affiliation: Replace with institution or organization
+
+# Optional. The Hugging Face username is recorded automatically.
+# contributor:
+#   name: Replace with contributor name
+#   affiliation: Replace with institution or organization
+
 scientific:
   # Broad catalog group. Recommended values: DNA, Expression,
   # Functional Genomics, Knowledge, Literature, Multimodal,
   # Network, Protein, RNA, Regulatory, or Single-cell.
   # Other values are accepted but displayed under "Other".
   category: Replace with the category
+
   # Specific free-text description of the representation,
   # e.g. protein sequence, single-cell transcriptomics,
-  # or regulatory activity.
+  # regulatory activity, or a biological knowledge graph.
   modality: Replace with the modality
-  original_method: Replace with the model or generation method
-  model_checkpoint: Replace with checkpoint/version or not-applicable
-  source_publication: ''
-  description: Replace this text with a clear description of the embedding, how it
-    was generated, and its intended use.
+
+  description: >
+    Replace this text with a clear description of the embedding
+    and the biological information it represents.
+
+  # Optional scientific details:
+  # original_method: Replace with the model or generation method
+  # model_checkpoint: Replace with checkpoint or version
+  # source_publication: https://doi.org/example
+
 provenance:
-  embedding_generated_by: Replace with model, software, or authors
-  input_data_source: Replace with the original data source
-  input_data_release: Replace with version or release
+  # Required because these fields explain how genes.tsv was made.
   species: Homo sapiens
-  pooling_strategy: Replace with pooling strategy or not-applicable
-  identifier_before_mapping: Replace with original identifier type
-  mapping_method: Replace with the identifier mapping procedure
+  identifier_before_mapping: Replace with the original identifier type
+  mapping_method: >
+    Explain how the original identifiers were converted or aligned
+    to the unversioned Ensembl gene IDs stored in genes.tsv,
+    including how missing or duplicate mappings were handled.
+
+  # Optional provenance details:
+  # embedding_generated_by: Replace with model, software, or authors
+  # input_data_source: Replace with the original data source
+  # input_data_release: Replace with version or release
+  # pooling_strategy: Replace with pooling strategy
+
 licensing:
-  source_license: cc-by-4.0
+  # Mandatory confirmation.
   redistribution_allowed: true
-  terms_url: Replace with the applicable license or terms URL
+
+  # Optional when known:
+  # source_license: cc-by-4.0
+  # terms_url: https://creativecommons.org/licenses/by/4.0/
+
 attestations:
   information_is_accurate: true
   rights_to_redistribute: true

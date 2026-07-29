@@ -79,7 +79,7 @@ def validate_package(
 
     submitted_license = submission[
         "licensing"
-    ]["source_license"]
+    ].get("source_license")
 
     if metadata_required:
         try:
@@ -304,15 +304,26 @@ def validate_package(
         submitted_modality,
     )
 
-    result.add(
-        "policy.license",
-        _status(
-            submitted_license.lower()
-            in allowed_licenses
-        ),
-        "License is on the automatic allowlist",
-        submitted_license,
-    )
+    if submitted_license:
+        result.add(
+            "policy.license",
+            _status(
+                submitted_license.lower()
+                in allowed_licenses
+            ),
+            "License is on the automatic allowlist",
+            submitted_license,
+        )
+    else:
+        result.add(
+            "policy.license",
+            "INFO",
+            (
+                "No source-license identifier was supplied. "
+                "Redistribution permission and rights "
+                "attestations remain mandatory."
+            ),
+        )
 
     genes = pd.read_csv(package_dir / "genes.tsv", sep="\t", dtype=str, keep_default_na=False)
     gene_column = policy["identifiers"]["required_column"]
@@ -433,7 +444,10 @@ def validate_package(
     })
     if candidate_info:
         result.provenance["candidate"] = candidate_info
-    result.provenance["source_license"] = submission["licensing"]["source_license"]
+    if submitted_license:
+        result.provenance[
+            "source_license"
+        ] = submitted_license
     return _finish(result, policy)
 
 

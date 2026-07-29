@@ -18,10 +18,16 @@ Prepare one folder named with a unique embedding ID:
 └── submission.yaml
 ~~~
 
-Contributors do not upload `metadata.json`. After strict validation,
-the publication workflow generates it automatically from
-`submission.yaml`, `embeddings.npz`, `genes.tsv`, and the computed
-validation results.
+Contributors do not need to upload `metadata.json`. Older packages
+that contain it remain accepted for compatibility, but the publication
+workflow replaces it with an automatically generated authoritative
+version.
+
+The required provenance fields are `species`,
+`identifier_before_mapping`, and `mapping_method`, because they explain
+how the identifiers in `genes.tsv` were obtained. Contributor details,
+method, checkpoint, publication, source data, release, pooling,
+source-license identifier, and terms URL are optional.
 
 The embedding ID must contain 3–80 lowercase letters, numbers,
 dots, underscores, or hyphens. It must begin with a letter or

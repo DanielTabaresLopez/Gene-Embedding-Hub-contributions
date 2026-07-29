@@ -7,15 +7,8 @@
     "embedding_id",
     "display_name",
     "species",
-    "original_method",
-    "model_checkpoint",
-    "embedding_generated_by",
-    "input_data_source",
-    "input_data_release",
-    "pooling_strategy",
     "original_identifier_type",
     "mapping_method",
-    "source_license",
     "redistribution_allowed"
   ],
   "properties": {
@@ -97,6 +90,63 @@
       "type": "string",
       "minLength": 2,
       "description": "Specific free-text embedding modality."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 30
+    },
+    "terms_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "n_genes": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "n_dimensions": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "dtype": {
+      "type": "string",
+      "minLength": 1
+    },
+    "npz_key": {
+      "type": "string",
+      "minLength": 1
+    },
+    "master_coverage_fraction": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "validation_outcome": {
+      "const": "PASS"
+    },
+    "accepted_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata_generated_automatically": {
+      "const": true
+    },
+    "contributor": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 2
+        },
+        "affiliation": {
+          "type": "string",
+          "minLength": 2
+        },
+        "huggingface_username": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
     }
   },
   "allOf": [

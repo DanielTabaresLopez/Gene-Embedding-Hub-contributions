@@ -20,6 +20,7 @@ REQUIRED_PORTAL_FILES = {
 }
 
 OPTIONAL_PORTAL_FILES = {
+    "metadata.json",
     "LICENSE",
     "LICENSE.txt",
     "LICENSE.md",
