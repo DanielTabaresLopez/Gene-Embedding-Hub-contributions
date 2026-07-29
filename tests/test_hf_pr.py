@@ -83,7 +83,7 @@ def test_additions_only_passes() -> None:
 def test_modifications_are_rejected() -> None:
     changes = [
         {
-            "path": "data/community_registry.json",
+            "path": "data/community_contributions/community_registry.json",
             "action": "MODIFIED",
         }
     ]

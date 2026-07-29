@@ -71,18 +71,18 @@ jobs:
 
       - name: Download current community registry
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
         run: |
           mkdir -p current-state/registry
 
           hf download \
-            embeddingsSSRF/gene_embeddings_staging \
-            data/community_registry.json \
+            embeddingsSSRF/gene_embeddings \
+            data/community_contributions/community_registry.json \
             --repo-type dataset \
             --local-dir current-state/registry
 
           cp \
-            current-state/registry/data/community_registry.json \
+            current-state/registry/data/community_contributions/community_registry.json \
             current-state/community_registry.json
 
       - name: Download current Space catalog
@@ -116,10 +116,10 @@ jobs:
 
       - name: Publish package and registry to the Hugging Face Dataset
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
         run: |
           hf upload \
-            embeddingsSSRF/gene_embeddings_staging \
+            embeddingsSSRF/gene_embeddings \
             dist/dataset \
             . \
             --repo-type dataset \
@@ -464,15 +464,15 @@ jobs:
 
       - name: Download the current community registry
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
         run: |
           set -euo pipefail
 
           mkdir -p current-state/dataset
 
           hf download \
-            embeddingsSSRF/gene_embeddings_staging \
-            data/community_registry.json \
+            embeddingsSSRF/gene_embeddings \
+            data/community_contributions/community_registry.json \
             --repo-type dataset \
             --local-dir current-state/dataset
 
@@ -510,7 +510,7 @@ jobs:
             --schema-dir schemas \
             --space-source space \
             --existing-registry \
-              current-state/dataset/data/community_registry.json \
+              current-state/dataset/data/community_contributions/community_registry.json \
             --existing-catalog \
               current-state/space/catalog.json \
             --hf-pr-number "$HF_PR_NUMBER" \
@@ -576,14 +576,14 @@ jobs:
 
       - name: Publish the accepted package centrally
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
           EMBEDDING_ID: ${{ steps.inspect.outputs.embedding_id }}
           HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
         run: |
           set -euo pipefail
 
           hf upload \
-            embeddingsSSRF/gene_embeddings_staging \
+            embeddingsSSRF/gene_embeddings \
             dist/dataset \
             . \
             --repo-type dataset \
@@ -632,9 +632,9 @@ jobs:
 
           The submission has been accepted and centrally archived as:
 
-          \`data/embeddings/${EMBEDDING_ID}\`
+          \`data/community_contributions/${EMBEDDING_ID}\`
 
-          The registry and staging Space were updated automatically.
+          The production Dataset registry and catalog Space were updated automatically.
           EOF
 
           HF_TOKEN="${{ secrets.HF_PR_TOKEN }}" \

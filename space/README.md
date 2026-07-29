@@ -7,7 +7,7 @@ sdk: static
 app_file: index.html
 pinned: false
 datasets:
-  - embeddingsSSRF/gene_embeddings_staging
+  - embeddingsSSRF/gene_embeddings
 ---
 
 # Gene Embeddings Staging Catalog

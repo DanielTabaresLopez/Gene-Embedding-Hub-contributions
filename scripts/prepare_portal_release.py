@@ -362,7 +362,7 @@ def main() -> int:
 
     pr_url = (
         "https://huggingface.co/datasets/"
-        f"{project['hf_dataset_id']}"
+        f"{project['hf_submission_dataset_id']}"
         f"/discussions/{args.hf_pr_number}"
     )
 
@@ -371,7 +371,7 @@ def main() -> int:
         "submission_channel": (
             "huggingface_pull_request"
         ),
-        "source_dataset": project["hf_dataset_id"],
+        "source_dataset": project["hf_submission_dataset_id"],
         "source_revision": (
             f"refs/pr/{args.hf_pr_number}"
         ),

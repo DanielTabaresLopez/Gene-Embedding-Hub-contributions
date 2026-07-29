@@ -29,18 +29,18 @@ jobs:
           python -m pip install "huggingface_hub>=1.19.0" hf_xet
       - name: Download current community registry
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
         run: |
           mkdir -p current-state/registry
 
           hf download \
-            embeddingsSSRF/gene_embeddings_staging \
-            data/community_registry.json \
+            embeddingsSSRF/gene_embeddings \
+            data/community_contributions/community_registry.json \
             --repo-type dataset \
             --local-dir current-state/registry
 
           cp \
-            current-state/registry/data/community_registry.json \
+            current-state/registry/data/community_contributions/community_registry.json \
             current-state/community_registry.json
 
       - name: Find first merged submission missing from the HF registry

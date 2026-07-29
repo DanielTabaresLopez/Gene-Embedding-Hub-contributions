@@ -43,7 +43,7 @@ def test_valid_portal_submission() -> None:
 def test_rejects_changes_outside_folder() -> None:
     paths = (
         valid_paths()
-        + ["data/community_registry.json"]
+        + ["data/community_contributions/community_registry.json"]
     )
 
     with pytest.raises(
