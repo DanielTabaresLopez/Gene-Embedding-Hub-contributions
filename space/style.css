@@ -754,3 +754,119 @@ html[data-theme="night"] body::before {
       );
   }
 }
+
+/* SMALLER IMAGE WITH BLUE FADE */
+
+/*
+The image uses its full width rather than being enlarged to cover
+a very tall area. It ends sooner and fades into the blue page
+background underneath it.
+*/
+
+html[data-theme="day"] body,
+html:not([data-theme]) body {
+  background:
+    linear-gradient(
+      180deg,
+      #071a33 0,
+      #0b355b 480px,
+      #176b94 720px,
+      #64afd0 980px,
+      #b8dfea 1320px,
+      #edf7fa 1720px,
+      #f5fafc 2050px
+    ) !important;
+}
+
+body::before {
+  height: clamp(680px, 49vw, 900px);
+
+  background-size: 100% auto;
+  background-position: center top;
+
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 52%,
+      rgba(0, 0, 0, .92) 62%,
+      rgba(0, 0, 0, .68) 75%,
+      rgba(0, 0, 0, .32) 88%,
+      transparent 100%
+    );
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 52%,
+      rgba(0, 0, 0, .92) 62%,
+      rgba(0, 0, 0, .68) 75%,
+      rgba(0, 0, 0, .32) 88%,
+      transparent 100%
+    );
+}
+
+
+/* Night mode uses the same transition with deeper blue tones. */
+
+html[data-theme="night"] body {
+  background:
+    linear-gradient(
+      180deg,
+      #030b18 0,
+      #061a30 500px,
+      #082d4b 760px,
+      #0a3655 1020px,
+      #091e32 1420px,
+      #07111f 1800px
+    ) !important;
+}
+
+
+@media (max-width: 720px) {
+  body::before {
+    height: 720px;
+
+    /*
+    Slight enlargement is retained on narrow screens so the image
+    does not leave empty horizontal space.
+    */
+    background-size: auto 720px;
+    background-position: 56% top;
+
+    -webkit-mask-image:
+      linear-gradient(
+        to bottom,
+        #000 0%,
+        #000 48%,
+        rgba(0, 0, 0, .82) 66%,
+        rgba(0, 0, 0, .38) 84%,
+        transparent 100%
+      );
+
+    mask-image:
+      linear-gradient(
+        to bottom,
+        #000 0%,
+        #000 48%,
+        rgba(0, 0, 0, .82) 66%,
+        rgba(0, 0, 0, .38) 84%,
+        transparent 100%
+      );
+  }
+
+  html[data-theme="day"] body,
+  html:not([data-theme]) body {
+    background:
+      linear-gradient(
+        180deg,
+        #071a33 0,
+        #0b355b 430px,
+        #247da3 700px,
+        #8bc7dd 1000px,
+        #e3f2f7 1450px,
+        #f5fafc 1750px
+      ) !important;
+  }
+}
