@@ -453,11 +453,11 @@ html[data-theme="night"] .card::before {
   background: rgba(0, 0, 0, .01);
 
   -webkit-backdrop-filter:
-    brightness(.92)
+    brightness(.88)
     saturate(1.70);
 
   backdrop-filter:
-    brightness(.92)
+    brightness(.88)
     saturate(1.70);
 }
 
@@ -468,10 +468,10 @@ html[data-theme="night"] .card > * {
 
 html[data-theme="night"] .card:hover::before {
   -webkit-backdrop-filter:
-    brightness(.96)
+    brightness(.92)
     saturate(1.90);
 
   backdrop-filter:
-    brightness(.96)
+    brightness(.92)
     saturate(1.90);
 }
