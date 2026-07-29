@@ -621,3 +621,136 @@ html[data-theme="night"] body {
 main {
   background: transparent;
 }
+
+/* SEAMLESS HERO CONTINUATION */
+
+/*
+One continuous image is placed behind the hero and the beginning
+of the page. It gradually fades into the normal page background.
+*/
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  position: relative;
+  background: #f5fafc !important;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+
+  height: clamp(820px, 58vw, 1120px);
+
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(3, 12, 32, .60) 0%,
+      rgba(3, 17, 43, .32) 50%,
+      rgba(3, 17, 43, .10) 100%
+    ),
+    url("hero-background.jpg");
+
+  background-position: center top;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 48%,
+      rgba(0, 0, 0, .93) 58%,
+      rgba(0, 0, 0, .68) 72%,
+      rgba(0, 0, 0, .30) 87%,
+      transparent 100%
+    );
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 48%,
+      rgba(0, 0, 0, .93) 58%,
+      rgba(0, 0, 0, .68) 72%,
+      rgba(0, 0, 0, .30) 87%,
+      transparent 100%
+    );
+
+  filter:
+    brightness(1.06)
+    saturate(1.06);
+
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero,
+main,
+.theme-toggle {
+  position: relative;
+  z-index: 1;
+}
+
+.hero {
+  background: transparent !important;
+  border-bottom-color: transparent;
+}
+
+main {
+  background: transparent !important;
+}
+
+
+/* Night version */
+
+html[data-theme="night"] body {
+  background: #07111f !important;
+}
+
+html[data-theme="night"] body::before {
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(2, 8, 22, .80) 0%,
+      rgba(3, 13, 34, .60) 50%,
+      rgba(3, 13, 34, .30) 100%
+    ),
+    url("hero-background.jpg");
+
+  filter:
+    brightness(.86)
+    saturate(1.12);
+}
+
+
+@media (max-width: 720px) {
+  body::before {
+    height: 900px;
+    background-position: 58% top;
+
+    -webkit-mask-image:
+      linear-gradient(
+        to bottom,
+        #000 0%,
+        #000 46%,
+        rgba(0, 0, 0, .75) 68%,
+        transparent 100%
+      );
+
+    mask-image:
+      linear-gradient(
+        to bottom,
+        #000 0%,
+        #000 46%,
+        rgba(0, 0, 0, .75) 68%,
+        transparent 100%
+      );
+  }
+}
