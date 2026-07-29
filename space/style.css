@@ -475,3 +475,34 @@ html[data-theme="night"] .card:hover::before {
     brightness(.92)
     saturate(1.90);
 }
+
+
+/* HERO BACKGROUND IMAGE */
+
+.hero {
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(3, 12, 32, .88) 0%,
+      rgba(3, 17, 43, .72) 48%,
+      rgba(3, 17, 43, .38) 100%
+    ),
+    url("hero-background.jpg");
+
+  background-position: center 46%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+@media (max-width: 720px) {
+  .hero {
+    background-position: 58% center;
+
+    background-image:
+      linear-gradient(
+        rgba(3, 12, 32, .78),
+        rgba(3, 12, 32, .78)
+      ),
+      url("hero-background.jpg");
+  }
+}
