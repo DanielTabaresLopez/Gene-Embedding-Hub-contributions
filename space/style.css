@@ -564,3 +564,60 @@ html[data-theme="night"] .hero {
       url("hero-background.jpg");
   }
 }
+
+/* CONTINUOUS HERO PAGE BACKGROUND */
+
+/*
+Continue the blue tones of the DNA hero into the page.
+The image itself is not repeated, so the content remains clear.
+*/
+
+html:not([data-theme]),
+html[data-theme="day"] {
+  background: #f5fafc;
+}
+
+html:not([data-theme]) body,
+html[data-theme="day"] body {
+  background:
+    radial-gradient(
+      circle at 75% 0%,
+      rgba(42, 181, 224, .20),
+      transparent 34rem
+    ),
+    linear-gradient(
+      180deg,
+      #0b3158 0,
+      #78b9d5 390px,
+      #d8edf5 650px,
+      #f5fafc 1050px
+    );
+
+  background-attachment: fixed;
+}
+
+html[data-theme="night"] {
+  background: #07111f;
+}
+
+html[data-theme="night"] body {
+  background:
+    radial-gradient(
+      circle at 75% 0%,
+      rgba(15, 126, 177, .18),
+      transparent 34rem
+    ),
+    linear-gradient(
+      180deg,
+      #06182c 0,
+      #0a2946 410px,
+      #0a192b 720px,
+      #07111f 1100px
+    );
+
+  background-attachment: fixed;
+}
+
+main {
+  background: transparent;
+}
