@@ -355,10 +355,73 @@ html {
 }
 /* End summary statistic color */
 
-/* DARK PAGE BACKGROUND ONLY */
+/* THEME TOGGLE */
 
-html,
-body {
-  min-height: 100%;
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 18px;
+  z-index: 1000;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 104px;
+
+  padding: 9px 13px;
+  border: 1px solid rgba(23, 32, 51, .22);
+  border-radius: 999px;
+
+  color: #172033;
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 5px 18px rgba(0, 0, 0, .15);
+
+  font: inherit;
+  font-size: .86rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  transition:
+    transform .15s ease,
+    background .15s ease,
+    color .15s ease,
+    border-color .15s ease;
+}
+
+.theme-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.theme-toggle:focus-visible {
+  outline: 3px solid rgba(129, 156, 255, .55);
+  outline-offset: 3px;
+}
+
+/*
+Only the page background changes in night mode.
+Cards, category palettes, badges and panels keep their original colors.
+*/
+
+html[data-theme="night"] {
   background: #090f1c;
+}
+
+html[data-theme="night"] body {
+  background: #090f1c;
+}
+
+html[data-theme="night"] .theme-toggle {
+  color: #f5f7ff;
+  background: rgba(17, 24, 39, .96);
+  border-color: #475569;
+}
+
+@media (max-width: 720px) {
+  .theme-toggle {
+    top: 10px;
+    right: 10px;
+    min-width: 92px;
+    padding: 8px 11px;
+    font-size: .8rem;
+  }
 }
