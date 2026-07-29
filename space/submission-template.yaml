@@ -5,7 +5,14 @@ contributor:
   name: Replace with contributor name
   affiliation: Replace with institution or organization
 scientific:
+  # Broad catalog group. Recommended values: DNA, Expression,
+  # Functional Genomics, Knowledge, Literature, Multimodal,
+  # Network, Protein, RNA, Regulatory, or Single-cell.
+  # Other values are accepted but displayed under "Other".
   category: Replace with the category
+  # Specific free-text description of the representation,
+  # e.g. protein sequence, single-cell transcriptomics,
+  # or regulatory activity.
   modality: Replace with the modality
   original_method: Replace with the model or generation method
   model_checkpoint: Replace with checkpoint/version or not-applicable
