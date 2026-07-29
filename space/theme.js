@@ -31,8 +31,8 @@
     root.dataset.theme = night ? "night" : "day";
 
     button.textContent = night
-      ? "☀️ Day"
-      : "🌙 Night";
+      ? "🌙"
+      : "☀️";
 
     button.setAttribute(
       "aria-pressed",
@@ -42,8 +42,15 @@
     button.setAttribute(
       "aria-label",
       night
-        ? "Switch to day mode"
-        : "Switch to night mode",
+        ? "Current theme: dark. Switch to light theme"
+        : "Current theme: light. Switch to dark theme",
+    );
+
+    button.setAttribute(
+      "title",
+      night
+        ? "Switch to light theme"
+        : "Switch to dark theme",
     );
   }
 
