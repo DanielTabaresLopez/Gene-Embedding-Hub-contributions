@@ -15,7 +15,6 @@ RESERVED_ROOT_FOLDERS = {
 REQUIRED_PORTAL_FILES = {
     "embeddings.npz",
     "genes.tsv",
-    "metadata.json",
     "README.md",
     "submission.yaml",
 }

@@ -18,7 +18,6 @@ def valid_paths(
     return [
         f"{root}/embeddings.npz",
         f"{root}/genes.tsv",
-        f"{root}/metadata.json",
         f"{root}/README.md",
         f"{root}/submission.yaml",
     ]
@@ -59,6 +58,20 @@ def test_legacy_incoming_submission() -> None:
         == "incoming/example_embedding"
     )
 
+
+
+def test_rejects_user_supplied_metadata() -> None:
+    paths = valid_paths() + [
+        "example_embedding/metadata.json"
+    ]
+
+    with pytest.raises(
+        ValueError,
+        match="Unexpected submission file",
+    ):
+        inspect_portal_diff(
+            make_diff(paths)
+        )
 
 def test_rejects_changes_outside_folder() -> None:
     paths = (

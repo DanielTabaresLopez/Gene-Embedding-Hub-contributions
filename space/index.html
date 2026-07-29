@@ -143,7 +143,6 @@
           <pre><code>&lt;embedding_id&gt;/
 ├── embeddings.npz
 ├── genes.tsv
-├── metadata.json
 ├── README.md
 └── submission.yaml</code></pre>
 
@@ -171,11 +170,12 @@
               <code>ensembl_gene_id</code> column whose rows match
               the matrix rows.
             </li>
-
             <li>
-              <code>metadata.json</code> describes the embedding and
-              contains matching <code>category</code> and
-              <code>modality</code> values.
+              <code>submission.yaml</code> supplies the descriptive
+              metadata. Dimensions, dtype, gene count, coverage and
+              checksums are measured automatically. A consolidated
+              <code>metadata.json</code> is generated only after the
+              submission is accepted.
             </li>
 
             <li>
@@ -249,7 +249,7 @@
 
         <a
           class="button"
-          href="submission-template.yaml"
+          href="submission.yaml"
           download
         >
           Download submission template

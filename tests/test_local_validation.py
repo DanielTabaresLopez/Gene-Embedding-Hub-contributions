@@ -120,6 +120,10 @@ def test_portal_submission_passes(
         encoding="utf-8",
     )
 
+    (
+        package / "metadata.json"
+    ).unlink()
+
     result = run_validation(
         portal_submission,
         "config/policy.yaml",
@@ -130,6 +134,13 @@ def test_portal_submission_passes(
         submission_schema_name=(
             "portal_submission.schema.json"
         ),
+        submitted_metadata_required=False,
     )
 
     assert result.outcome == "PASS"
+
+    assert any(
+        check.check_id == "metadata.generation"
+        and check.status == "INFO"
+        for check in result.checks
+    )

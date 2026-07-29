@@ -20,6 +20,7 @@ from gene_registry.report import write_report
 from gene_registry.service import run_validation
 from gene_registry.submission import (
     load_and_validate_submission,
+    validate_document,
 )
 from gene_registry.util import load_yaml, write_json
 
@@ -194,6 +195,7 @@ def main() -> int:
         submission_schema_name=(
             "portal_submission.schema.json"
         ),
+        submitted_metadata_required=False,
     )
 
     submitted_category = submission_category(
@@ -359,6 +361,153 @@ def main() -> int:
     accepted_at = datetime.now(
         timezone.utc
     ).isoformat()
+
+    uploaded_files = [
+        "embeddings.npz",
+        "genes.tsv",
+        "README.md",
+        "submission.yaml",
+    ]
+
+    file_sizes_bytes = {
+        filename: (
+            package_target / filename
+        ).stat().st_size
+        for filename in uploaded_files
+    }
+
+    generated_metadata = {
+        "schema_version": 1,
+        "embedding_id": embedding_id,
+        "display_name": submission[
+            "display_name"
+        ],
+        "category": submitted_category,
+        "modality": submitted_modality,
+        "description": submission[
+            "scientific"
+        ]["description"],
+        "species": submission[
+            "provenance"
+        ]["species"],
+        "original_method": submission[
+            "scientific"
+        ]["original_method"],
+        "model_checkpoint": submission[
+            "scientific"
+        ]["model_checkpoint"],
+        "publication": submission[
+            "scientific"
+        ].get(
+            "source_publication",
+            "",
+        ),
+        "embedding_generated_by": submission[
+            "provenance"
+        ]["embedding_generated_by"],
+        "input_data_source": submission[
+            "provenance"
+        ]["input_data_source"],
+        "input_data_release": submission[
+            "provenance"
+        ]["input_data_release"],
+        "pooling_strategy": submission[
+            "provenance"
+        ]["pooling_strategy"],
+        "original_identifier_type": submission[
+            "provenance"
+        ]["identifier_before_mapping"],
+        "mapping_method": submission[
+            "provenance"
+        ]["mapping_method"],
+        "source_license": submission[
+            "licensing"
+        ]["source_license"],
+        "redistribution_allowed": submission[
+            "licensing"
+        ]["redistribution_allowed"],
+        "terms_url": submission[
+            "licensing"
+        ]["terms_url"],
+        "contributor": {
+            "name": submission[
+                "contributor"
+            ]["name"],
+            "affiliation": submission[
+                "contributor"
+            ]["affiliation"],
+            "huggingface_username": (
+                args.hf_pr_author
+            ),
+        },
+        "n_genes": result.summary[
+            "n_genes"
+        ],
+        "n_dimensions": result.summary[
+            "n_dimensions"
+        ],
+        "dtype": result.summary[
+            "dtype"
+        ],
+        "npz_key": result.summary[
+            "npz_key"
+        ],
+        "master_genes_matched": result.summary[
+            "master_genes_matched"
+        ],
+        "master_coverage_fraction": (
+            result.summary[
+                "master_coverage_fraction"
+            ]
+        ),
+        "unknown_identifier_fraction": (
+            result.summary[
+                "unknown_identifier_fraction"
+            ]
+        ),
+        "zero_vectors": result.summary[
+            "zero_vectors"
+        ],
+        "duplicate_vectors": result.summary[
+            "duplicate_vectors"
+        ],
+        "constant_columns": result.summary[
+            "constant_columns"
+        ],
+        "value_min": result.summary[
+            "value_min"
+        ],
+        "value_max": result.summary[
+            "value_max"
+        ],
+        "norm_min": result.summary[
+            "norm_min"
+        ],
+        "norm_median": result.summary[
+            "norm_median"
+        ],
+        "norm_max": result.summary[
+            "norm_max"
+        ],
+        "embeddings_sha256": checksum,
+        "checksums_sha256": result.summary[
+            "checksums_sha256"
+        ],
+        "file_sizes_bytes": file_sizes_bytes,
+        "validation_outcome": result.outcome,
+        "accepted_at_utc": accepted_at,
+        "metadata_generated_automatically": True,
+    }
+
+    validate_document(
+        generated_metadata,
+        schema_dir / "metadata.schema.json",
+    )
+
+    write_json(
+        package_target / "metadata.json",
+        generated_metadata,
+    )
 
     pr_url = (
         "https://huggingface.co/datasets/"

@@ -454,9 +454,6 @@ jobs:
             "pr-snapshot/${PACKAGE_PATH}/genes.tsv"
 
           test -f \
-            "pr-snapshot/${PACKAGE_PATH}/metadata.json"
-
-          test -f \
             "pr-snapshot/${PACKAGE_PATH}/README.md"
 
           test -f \

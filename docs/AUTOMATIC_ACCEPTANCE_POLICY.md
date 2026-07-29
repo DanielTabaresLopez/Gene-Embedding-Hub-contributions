@@ -13,7 +13,7 @@ The default starter policy checks:
 - unique, unversioned Ensembl gene identifiers;
 - coverage against the 20,097-gene master universe;
 - finite values, no zero vectors, and no constant columns or exact duplicate vectors when policy requires them;
-- metadata schema and submission/package consistency;
+- submission schema, contributor-provided provenance, and automatic metadata generation;
 - allowlisted license declaration and affirmative redistribution attestations;
 - exact checksum duplicate rejection against prior automatic contributions.
 

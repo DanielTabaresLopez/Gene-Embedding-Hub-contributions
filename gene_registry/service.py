@@ -24,6 +24,7 @@ def run_validation(
     output_dir: str | Path,
     package_dir: str | Path | None = None,
     submission_schema_name: str = "submission.schema.json",
+    submitted_metadata_required: bool = True,
 ) -> ValidationResult:
     policy = load_yaml(policy_path)
     schema_dir = Path(schema_dir)
@@ -69,6 +70,9 @@ def run_validation(
             master_genes=master_genes,
             metadata_schema=(
                 schema_dir / "metadata.schema.json"
+            ),
+            metadata_required=(
+                submitted_metadata_required
             ),
             candidate_info=candidate_info,
         )

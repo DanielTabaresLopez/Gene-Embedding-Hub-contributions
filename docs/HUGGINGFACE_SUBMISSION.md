@@ -14,10 +14,14 @@ Prepare one folder named with a unique embedding ID:
 <embedding_id>/
 ├── embeddings.npz
 ├── genes.tsv
-├── metadata.json
 ├── README.md
 └── submission.yaml
 ~~~
+
+Contributors do not upload `metadata.json`. After strict validation,
+the publication workflow generates it automatically from
+`submission.yaml`, `embeddings.npz`, `genes.tsv`, and the computed
+validation results.
 
 The embedding ID must contain 3–80 lowercase letters, numbers,
 dots, underscores, or hyphens. It must begin with a letter or

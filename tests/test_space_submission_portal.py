@@ -7,7 +7,6 @@ import yaml
 REQUIRED_FILES = {
     "embeddings.npz",
     "genes.tsv",
-    "metadata.json",
     "README.md",
     "submission.yaml",
 }
@@ -45,6 +44,16 @@ def test_all_submission_instructions_are_on_main_page() -> None:
     for filename in REQUIRED_FILES:
         assert filename in index
 
+    assert (
+        "metadata.json"
+        in index
+    )
+
+    assert (
+        "generated only after"
+        in index
+    )
+
     assert not Path(
         "space/contribute.html"
     ).exists()
@@ -73,7 +82,7 @@ def test_template_uses_category_and_modality() -> None:
     )
 
     deployed = yaml.safe_load(
-        read("space/submission-template.yaml")
+        read("space/submission.yaml")
     )
 
     assert source == deployed
