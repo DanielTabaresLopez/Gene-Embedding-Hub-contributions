@@ -141,74 +141,10 @@
     .muted {
       color: var(--muted);
     }
-
-    /* Tutorial theme-toggle support */
-
-    :root[data-theme="day"] {
-      --background: #f6f8fb;
-      --surface: #ffffff;
-      --text: #172033;
-      --muted: #566176;
-      --border: #dce2eb;
-      --accent: #2563eb;
-      --code: #eef2f7;
-    }
-
-    :root[data-theme="night"] {
-      --background: #111827;
-      --surface: #1f2937;
-      --text: #f3f4f6;
-      --muted: #c2c9d4;
-      --border: #374151;
-      --accent: #93b4ff;
-      --code: #111827;
-    }
-
-    #theme-toggle {
-      position: fixed;
-      top: 18px;
-      right: 18px;
-      z-index: 1000;
-      width: 42px;
-      height: 42px;
-      display: grid;
-      place-items: center;
-      padding: 0;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--surface);
-      color: var(--text);
-      box-shadow: 0 8px 24px rgb(0 0 0 / 14%);
-      cursor: pointer;
-    }
-
-    #theme-toggle:hover {
-      transform: translateY(-1px);
-    }
-
-    #theme-toggle:focus-visible {
-      outline: 3px solid var(--accent);
-      outline-offset: 3px;
-    }
-
-    #theme-toggle svg {
-      width: 20px;
-      height: 20px;
-    }
-
   </style>
 </head>
 
 <body>
-  <button
-  id="theme-toggle"
-  class="theme-toggle"
-  type="button"
-  aria-label="Current theme: light. Switch to dark theme"
-  aria-pressed="false"
->
-  ☀️
-</button>
   <main>
     <p>
       <a href="index.html">← Back to the embedding catalog</a>
@@ -436,6 +372,6 @@ pd.DataFrame(
   identifier_before_mapping: Entrez Gene ID
   mapping_method: Source Entrez IDs were mapped through map_entrez_ids_all in the project master gene table. Only unique mappings were retained, unmapped and ambiguous identifiers were excluded, and duplicate source rows mapping to the same final Ensembl gene were averaged.</code></pre>
   </main>
-  <script src="theme.js"></script>
+  
 </body>
 </html>
