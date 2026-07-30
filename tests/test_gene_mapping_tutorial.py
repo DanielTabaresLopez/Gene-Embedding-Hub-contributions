@@ -48,13 +48,31 @@ def test_gene_mapping_tutorial_is_published() -> None:
     )
 
     assert (
-        "master_gene_table.parquet"
+        "Do not blindly use"
         in tutorial
     )
 
+
+    assert "Need help converting source identifiers?" not in index
+
+    assert "master_gene_table.parquet" not in tutorial
+    assert "Download master table Parquet" not in tutorial
+
+    assert "Exclude and report" not in tutorial
+    assert "Recommended mapping report" not in tutorial
+
+    overview_position = tutorial.index("<h2>Overview</h2>")
+    important_position = tutorial.index(
+        "<strong>Important:</strong>"
+    )
+    step_1_position = tutorial.index(
+        "<h2>1. Identify the source identifier type</h2>"
+    )
+
     assert (
-        "Do not blindly use"
-        in tutorial
+        overview_position
+        < important_position
+        < step_1_position
     )
 
     assert (

@@ -144,5 +144,5 @@ mappings only, report unmapped and ambiguous identifiers, and average
 source rows that map to the same final gene.
 
 See [`GENE_MAPPING_TUTORIAL.md`](GENE_MAPPING_TUTORIAL.md) for the
-complete workflow, master-table download links, supported identifier
+complete workflow, master-table download link, supported identifier
 columns, symbol-priority rules, and code examples.

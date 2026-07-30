@@ -69,7 +69,12 @@ def test_all_submission_instructions_are_on_main_page() -> None:
         in index
     )
 
-    assert "generated after acceptance." in index
+    assert (
+        "generated and saved in the embedding's folder after"
+        in index
+    )
+
+    assert "acceptance." in index
 
     assert (
         "Dimensions, dtype, gene count and coverage"

@@ -11,11 +11,8 @@ identifiers into the accepted Ensembl gene universe.
 
 - CSV:
   https://huggingface.co/datasets/embeddingsSSRF/gene_embeddings/resolve/main/data/master_gene_table.csv?download=true
-- Parquet:
-  https://huggingface.co/datasets/embeddingsSSRF/gene_embeddings/resolve/main/data/master_gene_table.parquet?download=true
 
-The Parquet file is normally faster and preserves column types better.
-The CSV file is easier to inspect manually.
+The CSV file can be inspected directly or loaded with pandas.
 
 ## Mapping workflow
 
@@ -84,11 +81,8 @@ For every source identifier, collect the Ensembl gene IDs to which it
 maps.
 
 - **Unique:** exactly one Ensembl gene ID; retain the row.
-- **Unmapped:** no Ensembl gene ID; exclude the row and report it.
-- **Ambiguous:** more than one Ensembl gene ID; exclude the row and
-  report all candidates.
-
-Do not select one candidate arbitrarily from an ambiguous mapping.
+- **Unmapped:** no Ensembl gene ID; exclude the row.
+- **Ambiguous:** more than one Ensembl gene ID; exclude the row.
 
 ## 4. Build a lookup from a mapping column
 
@@ -243,20 +237,3 @@ provenance:
 ```
 
 Change this text to accurately describe the submitted embedding.
-
-## Recommended mapping report
-
-Keep a separate report during processing with:
-
-```text
-total source rows
-unique mapped rows
-unmapped rows
-ambiguous rows
-final unique Ensembl genes
-duplicate source rows collapsed
-final master-table coverage
-```
-
-The mapping report is useful for reproducibility even though it is not
-one of the four required submission files.

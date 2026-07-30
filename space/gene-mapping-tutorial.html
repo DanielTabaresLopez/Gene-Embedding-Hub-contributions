@@ -158,11 +158,7 @@
       <code>genes.tsv</code>.
     </p>
 
-    <div class="intro">
-      <strong>Important:</strong> the final
-      <code>genes.tsv</code> row order must exactly match the row
-      order of the matrix in <code>embeddings.npz</code>.
-    </div>
+
 
     <div class="button-row">
       <a
@@ -172,12 +168,6 @@
         Download master table CSV
       </a>
 
-      <a
-        class="button"
-        href="https://huggingface.co/datasets/embeddingsSSRF/gene_embeddings/resolve/main/data/master_gene_table.parquet?download=true"
-      >
-        Download master table Parquet
-      </a>
     </div>
 
     <h2>Overview</h2>
@@ -196,6 +186,14 @@
       Row-aligned <code>embeddings.npz</code> +
       <code>genes.tsv</code>
     </div>
+
+    <div class="intro">
+      <strong>Important:</strong> the final
+      <code>genes.tsv</code> row order must exactly match the row
+      order of the matrix in <code>embeddings.npz</code>.
+    </div>
+
+
 
     <h2>1. Identify the source identifier type</h2>
 
@@ -282,13 +280,11 @@
       </p>
 
       <p>
-        <strong>Unmapped:</strong> no candidate. Exclude and report
-        the row.
+        <strong>Unmapped:</strong> no candidate. Exclude.
       </p>
 
       <p>
-        <strong>Ambiguous:</strong> more than one candidate. Exclude
-        and report the candidates. Do not choose one arbitrarily.
+        <strong>Ambiguous:</strong> more than one candidate. Exclude.
       </p>
     </div>
 
@@ -375,23 +371,6 @@ pd.DataFrame(
   species: Homo sapiens
   identifier_before_mapping: Entrez Gene ID
   mapping_method: Source Entrez IDs were mapped through map_entrez_ids_all in the project master gene table. Only unique mappings were retained, unmapped and ambiguous identifiers were excluded, and duplicate source rows mapping to the same final Ensembl gene were averaged.</code></pre>
-
-    <h2>Recommended mapping report</h2>
-
-    <ul>
-      <li>Total source rows</li>
-      <li>Unique mapped rows</li>
-      <li>Unmapped rows</li>
-      <li>Ambiguous rows</li>
-      <li>Duplicate source rows collapsed</li>
-      <li>Final unique Ensembl genes</li>
-      <li>Final master-table coverage</li>
-    </ul>
-
-    <p>
-      The mapping report is recommended for reproducibility, although
-      it is not one of the four required upload files.
-    </p>
   </main>
 </body>
 </html>
