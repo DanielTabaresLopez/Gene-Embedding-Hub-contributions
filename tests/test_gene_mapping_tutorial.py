@@ -1,3 +1,5 @@
+import re
+
 from pathlib import Path
 
 
@@ -77,5 +79,49 @@ def test_gene_mapping_tutorial_is_published() -> None:
 
     assert (
         "Average those source vectors"
+        in tutorial
+    )
+
+def test_mapping_tutorial_heading_and_theme_toggle() -> None:
+    index = read("space/index.html")
+    tutorial = read(
+        "space/gene-mapping-tutorial.html"
+    )
+
+    assert (
+        "<h2>7. Document the procedure in "
+        "submission.yaml</h2>"
+        in tutorial
+    )
+
+    assert (
+        "<h2>7. Document the procedure</h2>"
+        not in tutorial
+    )
+
+    button_pattern = re.compile(
+        r"<button\b[^>]*>.*?</button>",
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    main_theme_buttons = [
+        button.strip()
+        for button in button_pattern.findall(index)
+        if "theme" in button.lower()
+    ]
+
+    tutorial_theme_buttons = [
+        button.strip()
+        for button in button_pattern.findall(tutorial)
+        if "theme" in button.lower()
+    ]
+
+    assert len(main_theme_buttons) == 1
+    assert tutorial_theme_buttons == main_theme_buttons
+
+    assert '<script src="theme.js"></script>' in tutorial
+
+    assert (
+        "Tutorial theme-toggle support"
         in tutorial
     )
