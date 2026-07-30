@@ -125,3 +125,9 @@ def test_mapping_tutorial_heading_and_theme_toggle() -> None:
         "Tutorial theme-toggle support"
         in tutorial
     )
+
+    assert ':root[data-theme="day"]' in tutorial
+    assert ':root[data-theme="night"]' in tutorial
+
+    assert ':root[data-theme="light"]' not in tutorial
+    assert ':root[data-theme="dark"]' not in tutorial
