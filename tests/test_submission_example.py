@@ -35,7 +35,7 @@ def test_completed_submission_example() -> None:
     assert document["display_name"] == "ESM2-v1.1"
 
     assert document["contributor"] == {
-        "name": "Daniel Tabares López",
+        "name": "Daniel Tabares Lopez",
         "affiliation": "ETH Zurich",
     }
 
@@ -85,6 +85,6 @@ def test_completed_submission_example() -> None:
     assert 'href="submission.example.yaml"' in index
 
     assert (
-        "Download real completed example"
+        "Download completed example"
         in index
     )
