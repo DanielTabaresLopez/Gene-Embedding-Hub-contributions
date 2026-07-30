@@ -50,8 +50,33 @@ def test_all_submission_instructions_are_on_main_page() -> None:
     )
 
     assert (
-        "generated after acceptance"
+        "A <code>metadata.json</code> file is automatically"
         in index
+    )
+
+    assert "generated after acceptance." in index
+
+    assert (
+        "Dimensions, dtype, gene count and coverage"
+        not in index
+    )
+
+    step_1_position = index.index(
+        '<span class="step-number">1</span>'
+    )
+
+    metadata_position = index.index(
+        "A <code>metadata.json</code> file is automatically"
+    )
+
+    step_2_position = index.index(
+        '<span class="step-number">2</span>'
+    )
+
+    assert (
+        step_1_position
+        < metadata_position
+        < step_2_position
     )
 
     assert not Path(
