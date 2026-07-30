@@ -124,3 +124,13 @@ access can submit.
 During the current staging checkpoint, a maintainer starts the
 processor manually. Scheduled discovery of new open Pull Requests
 will be enabled after the interface is verified.
+
+## Submission template and completed example
+
+Use `submission.yaml` as the editable submission template. Keep the
+section headers `scientific`, `provenance`, `licensing`, and
+`attestations` unchanged, and replace the values nested inside them.
+
+`submission.example.yaml` is a fully completed illustrative example.
+It demonstrates the expected structure and optional fields, but its
+example values must not be submitted unchanged.

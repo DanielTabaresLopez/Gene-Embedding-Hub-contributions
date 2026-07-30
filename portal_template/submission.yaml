@@ -8,10 +8,10 @@ display_name: Replace with the displayed embedding name
 #   affiliation: Replace with institution or organization
 
 scientific:
-  # Broad catalog group. Recommended values: DNA, Expression,
-  # Functional Genomics, Knowledge, Literature, Multimodal,
-  # Network, Protein, RNA, Regulatory, or Single-cell.
-  # Other values are accepted but displayed under "Other".
+  # Choose one of the categories from the catalog:
+  # DNA, Expression, Functional Genomics, Knowledge, Literature,
+  # Multimodal, Network, Protein, RNA, Regulatory, or Single-cell.
+  # Any other value will be displayed under "Other".
   category: Replace with the category
 
   # Specific free-text description of the representation,
@@ -19,23 +19,22 @@ scientific:
   # regulatory activity, or a biological knowledge graph.
   modality: Replace with the modality
 
-  description: >
-    Replace this text with a clear description of the embedding
-    and the biological information it represents.
+  # Describe the embedding and the biological information
+  # represented by it.
+  description: Replace with the embedding description
 
   # Optional scientific details:
   # original_method: Replace with the model or generation method
   # model_checkpoint: Replace with checkpoint or version
-  # source_publication: https://doi.org/example
+  # source_publication: Replace with a DOI or publication URL
 
 provenance:
-  # Required because these fields explain how genes.tsv was made.
   species: Homo sapiens
   identifier_before_mapping: Replace with the original identifier type
-  mapping_method: >
-    Explain how the original identifiers were converted or aligned
-    to the unversioned Ensembl gene IDs stored in genes.tsv,
-    including how missing or duplicate mappings were handled.
+  # Explain how the original identifiers were converted or aligned
+  # to the Ensembl gene IDs in genes.tsv, including how missing or
+  # duplicate mappings were handled.
+  mapping_method: Replace with the mapping method
 
   # Optional provenance details:
   # embedding_generated_by: Replace with model, software, or authors

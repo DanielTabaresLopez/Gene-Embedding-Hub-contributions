@@ -1,0 +1,42 @@
+# COMPLETED EXAMPLE
+# Do not upload this file unchanged.
+# Copy submission.yaml and replace these example values with
+# information describing your own embedding.
+
+schema_version: 1
+embedding_id: example_protein_sequence_embedding
+display_name: Example Protein Sequence Embedding
+
+contributor:
+  name: Example Contributor
+  affiliation: Example Research Institute
+
+scientific:
+  category: Protein
+  modality: Protein sequence
+  description: An example gene-level embedding derived from protein sequence representations for demonstration of the submission format.
+  original_method: Example transformer-based protein language model
+  model_checkpoint: example-checkpoint-v1
+  source_publication: https://example.org/example-publication
+
+provenance:
+  species: Homo sapiens
+  identifier_before_mapping: Ensembl protein ID
+  mapping_method: Protein identifiers were mapped to unversioned Ensembl gene IDs; unmapped identifiers were removed and duplicate mappings were resolved by retaining one gene-level vector.
+  embedding_generated_by: Example embedding-generation pipeline
+  input_data_source: Example human protein sequence dataset
+  input_data_release: Example release 1
+  pooling_strategy: Mean pooling across protein sequence tokens
+
+licensing:
+  redistribution_allowed: true
+  source_license: cc-by-4.0
+  terms_url: https://creativecommons.org/licenses/by/4.0/
+
+attestations:
+  information_is_accurate: true
+  rights_to_redistribute: true
+  no_sensitive_human_data: true
+  no_patient_level_data: true
+  source_terms_reviewed: true
+  acceptance_of_automatic_checks: true
