@@ -135,3 +135,14 @@ section headers `scientific`, `provenance`, `licensing`, and
 the ESM2-v1.1 embedding processed in this project. It uses actual
 scientific and provenance values and intentionally omits optional fields
 whose exact values were not verified. It must not be submitted unchanged.
+
+## Mapping identifiers to the master gene table
+
+Before creating `genes.tsv`, convert the identifiers used by the source
+embedding into the project's unversioned Ensembl gene IDs. Use unique
+mappings only, report unmapped and ambiguous identifiers, and average
+source rows that map to the same final gene.
+
+See [`GENE_MAPPING_TUTORIAL.md`](GENE_MAPPING_TUTORIAL.md) for the
+complete workflow, master-table download links, supported identifier
+columns, symbol-priority rules, and code examples.

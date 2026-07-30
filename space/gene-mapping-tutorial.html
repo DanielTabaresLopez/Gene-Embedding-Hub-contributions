@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  />
+
+  <title>Gene mapping tutorial</title>
+
+  <style>
+    :root {
+      color-scheme: light dark;
+      --background: #f6f8fb;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #566176;
+      --border: #dce2eb;
+      --accent: #2563eb;
+      --code: #eef2f7;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #111827;
+        --surface: #1f2937;
+        --text: #f3f4f6;
+        --muted: #c2c9d4;
+        --border: #374151;
+        --accent: #93b4ff;
+        --code: #111827;
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    main {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 72px;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.25;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      margin-top: 42px;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    .intro,
+    .card,
+    .warning {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin: 18px 0;
+    }
+
+    .warning {
+      border-left: 5px solid var(--accent);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 22px 0;
+    }
+
+    .button {
+      display: inline-block;
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: 10px 15px;
+      text-decoration: none;
+      font-weight: 650;
+    }
+
+    code {
+      background: var(--code);
+      border-radius: 5px;
+      padding: 2px 5px;
+    }
+
+    pre {
+      overflow-x: auto;
+      background: var(--code);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    pre code {
+      padding: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      display: block;
+      overflow-x: auto;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 9px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .flow {
+      text-align: center;
+      font-weight: 650;
+      line-height: 2;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <p>
+      <a href="index.html">← Back to the embedding catalog</a>
+    </p>
+
+    <h1>Gene identifier mapping tutorial</h1>
+
+    <p class="muted">
+      Convert the identifiers used by your source embedding into the
+      unversioned Ensembl gene IDs required by
+      <code>genes.tsv</code>.
+    </p>
+
+    <div class="intro">
+      <strong>Important:</strong> the final
+      <code>genes.tsv</code> row order must exactly match the row
+      order of the matrix in <code>embeddings.npz</code>.
+    </div>
+
+    <div class="button-row">
+      <a
+        class="button"
+        href="https://huggingface.co/datasets/embeddingsSSRF/gene_embeddings/resolve/main/data/master_gene_table.csv?download=true"
+      >
+        Download master table CSV
+      </a>
+
+      <a
+        class="button"
+        href="https://huggingface.co/datasets/embeddingsSSRF/gene_embeddings/resolve/main/data/master_gene_table.parquet?download=true"
+      >
+        Download master table Parquet
+      </a>
+    </div>
+
+    <h2>Overview</h2>
+
+    <div class="card flow">
+      Source identifiers + source matrix<br />
+      ↓<br />
+      Map identifiers to the master table<br />
+      ↓<br />
+      Classify as unique, unmapped, or ambiguous<br />
+      ↓<br />
+      Exclude unmapped and ambiguous rows<br />
+      ↓<br />
+      Average rows mapping to the same final gene<br />
+      ↓<br />
+      Row-aligned <code>embeddings.npz</code> +
+      <code>genes.tsv</code>
+    </div>
+
+    <h2>1. Identify the source identifier type</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Source identifier</th>
+          <th>Master-table column</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td>Ensembl gene ID</td>
+          <td><code>map_ensembl_gene_ids_all</code></td>
+        </tr>
+        <tr>
+          <td>Entrez Gene ID</td>
+          <td><code>map_entrez_ids_all</code></td>
+        </tr>
+        <tr>
+          <td>UniProt accession</td>
+          <td><code>map_uniprot_ids_all</code></td>
+        </tr>
+        <tr>
+          <td>RefSeq accession</td>
+          <td><code>map_refseq_ids_all</code></td>
+        </tr>
+        <tr>
+          <td>CCDS ID</td>
+          <td><code>map_ccds_ids_all</code></td>
+        </tr>
+        <tr>
+          <td>Ensembl transcript ID</td>
+          <td><code>map_ensembl_transcript_ids_all</code></td>
+        </tr>
+        <tr>
+          <td>Ensembl protein ID</td>
+          <td><code>map_ensembl_protein_ids_all</code></td>
+        </tr>
+        <tr>
+          <td>STRING protein ID</td>
+          <td><code>map_string_protein_ids_all</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      Multiple identifiers in one master-table cell are separated by
+      <code>|</code>.
+    </p>
+
+    <h2>2. Gene-symbol mapping requires priority</h2>
+
+    <div class="warning">
+      Do not blindly use <code>map_symbols_all</code>. It combines
+      current symbols, previous symbols, aliases, and names.
+    </div>
+
+    <ol>
+      <li>
+        Try <code>gene_symbol</code> and
+        <code>hgnc_approved_symbol</code>.
+      </li>
+      <li>
+        Then try <code>hgnc_previous_symbols</code>.
+      </li>
+      <li>
+        Finally try <code>hgnc_alias_symbols</code>.
+      </li>
+    </ol>
+
+    <p>
+      Move to a lower-priority source only when the identifier was not
+      matched at a higher-priority level.
+    </p>
+
+    <h2>3. Accept only unique mappings</h2>
+
+    <div class="card">
+      <p>
+        <strong>Unique:</strong> exactly one Ensembl gene candidate.
+        Retain the row.
+      </p>
+
+      <p>
+        <strong>Unmapped:</strong> no candidate. Exclude and report
+        the row.
+      </p>
+
+      <p>
+        <strong>Ambiguous:</strong> more than one candidate. Exclude
+        and report the candidates. Do not choose one arbitrarily.
+      </p>
+    </div>
+
+    <h2>4. Basic lookup example</h2>
+
+    <p>
+      This example builds an Entrez-to-Ensembl lookup. Replace
+      <code>map_entrez_ids_all</code> with the appropriate mapping
+      column for your source.
+    </p>
+
+    <pre><code>from collections import defaultdict
+import pandas as pd
+
+master = pd.read_csv(
+    "master_gene_table.csv",
+    dtype=str,
+)
+
+lookup = defaultdict(set)
+
+for row in master[
+    ["ensembl_gene_id", "map_entrez_ids_all"]
+].dropna().itertuples(index=False):
+    for identifier in row.map_entrez_ids_all.split("|"):
+        identifier = identifier.strip()
+
+        if identifier:
+            lookup[identifier].add(
+                row.ensembl_gene_id
+            )
+
+candidates = lookup.get(source_identifier, set())
+
+if len(candidates) == 1:
+    status = "unique"
+    ensembl_gene_id = next(iter(candidates))
+elif len(candidates) == 0:
+    status = "unmapped"
+    ensembl_gene_id = None
+else:
+    status = "ambiguous"
+    ensembl_gene_id = None</code></pre>
+
+    <h2>5. Collapse duplicate final mappings</h2>
+
+    <p>
+      Different source identifiers may map uniquely to the same final
+      Ensembl gene. Average those source vectors after mapping so that
+      the final package contains one row per gene.
+    </p>
+
+    <pre><code>final_vector = source_matrix[source_indices].mean(
+    axis=0,
+)</code></pre>
+
+    <h2>6. Preserve row alignment</h2>
+
+    <p>
+      Apply every mapping, filtering, and duplicate-collapsing decision
+      to the source identifiers and matrix together. Never sort or
+      filter <code>genes.tsv</code> independently.
+    </p>
+
+    <pre><code>assert final_matrix.shape[0] == len(final_gene_ids)
+assert len(final_gene_ids) == len(set(final_gene_ids))
+
+np.savez_compressed(
+    "embeddings.npz",
+    embeddings=final_matrix.astype("float32"),
+)
+
+pd.DataFrame(
+    {"ensembl_gene_id": final_gene_ids}
+).to_csv(
+    "genes.tsv",
+    sep="\t",
+    index=False,
+)</code></pre>
+
+    <h2>7. Document the procedure</h2>
+
+    <pre><code>provenance:
+  species: Homo sapiens
+  identifier_before_mapping: Entrez Gene ID
+  mapping_method: Source Entrez IDs were mapped through map_entrez_ids_all in the project master gene table. Only unique mappings were retained, unmapped and ambiguous identifiers were excluded, and duplicate source rows mapping to the same final Ensembl gene were averaged.</code></pre>
+
+    <h2>Recommended mapping report</h2>
+
+    <ul>
+      <li>Total source rows</li>
+      <li>Unique mapped rows</li>
+      <li>Unmapped rows</li>
+      <li>Ambiguous rows</li>
+      <li>Duplicate source rows collapsed</li>
+      <li>Final unique Ensembl genes</li>
+      <li>Final master-table coverage</li>
+    </ul>
+
+    <p>
+      The mapping report is recommended for reproducibility, although
+      it is not one of the four required upload files.
+    </p>
+  </main>
+</body>
+</html>
