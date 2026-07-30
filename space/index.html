@@ -266,15 +266,21 @@
       </div>
 
       <details class="cli-alternative">
-        <summary>Command-line alternative</summary>
+        <summary>Command-line alternative example</summary>
+
+        <p>
+          Before running this example, replace
+          <code>esm2_v1_1</code> with the name of your existing
+          local embedding folder in both path arguments.
+        </p>
 
         <pre><code>hf upload \
   embeddingsSSRF/gene_embeddings_staging \
-  ./&lt;embedding_id&gt; \
-  &lt;embedding_id&gt; \
+  ./esm2_v1_1 \
+  esm2_v1_1 \
   --repo-type dataset \
   --create-pr \
-  --commit-message "Submit &lt;embedding_id&gt;"</code></pre>
+  --commit-message "Submit gene embedding"</code></pre>
       </details>
     </section>
   </main>

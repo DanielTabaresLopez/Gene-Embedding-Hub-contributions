@@ -240,3 +240,48 @@ def test_portal_optional_and_required_fields() -> None:
     assert source["licensing"] == {
         "redistribution_allowed": True,
     }
+
+def test_command_line_alternative_uses_concrete_example() -> None:
+    index = read("space/index.html")
+
+    start = index.index(
+        "<summary>Command-line alternative example</summary>"
+    )
+
+    end = index.index(
+        "</details>",
+        start,
+    )
+
+    command_section = index[start:end]
+
+    explanation = (
+        "Before running this example, replace"
+    )
+
+    assert explanation in command_section
+
+    assert (
+        "<code>esm2_v1_1</code> with the name of your existing"
+        in command_section
+    )
+
+    assert (
+        "local embedding folder in both path arguments."
+        in command_section
+    )
+
+    assert (
+        command_section.index(explanation)
+        < command_section.index("<pre><code>")
+    )
+
+    assert "./esm2_v1_1" in command_section
+    assert command_section.count("esm2_v1_1") == 3
+
+    assert (
+        '--commit-message "Submit gene embedding"'
+        in command_section
+    )
+
+    assert "&lt;embedding_id&gt;" not in command_section
