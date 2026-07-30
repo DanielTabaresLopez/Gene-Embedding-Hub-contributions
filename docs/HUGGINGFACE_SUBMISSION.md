@@ -131,6 +131,7 @@ Use `submission.yaml` as the editable submission template. Keep the
 section headers `scientific`, `provenance`, `licensing`, and
 `attestations` unchanged, and replace the values nested inside them.
 
-`submission.example.yaml` is a fully completed illustrative example.
-It demonstrates the expected structure and optional fields, but its
-example values must not be submitted unchanged.
+`submission.example.yaml` is a completed real-world example based on
+the ESM2-v1.1 embedding processed in this project. It uses actual
+scientific and provenance values and intentionally omits optional fields
+whose exact values were not verified. It must not be submitted unchanged.
