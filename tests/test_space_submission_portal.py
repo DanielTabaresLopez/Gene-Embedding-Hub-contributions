@@ -45,6 +45,26 @@ def test_all_submission_instructions_are_on_main_page() -> None:
         assert filename in index
 
     assert (
+        "provides the scientific"
+        in index
+    )
+
+    assert (
+        "context and provenance needed to understand the"
+        in index
+    )
+
+    assert (
+        "indicates which fields are required and which are"
+        in index
+    )
+
+    assert (
+        "Species, original identifier type and mapping method"
+        not in index
+    )
+
+    assert (
         "metadata.json"
         in index
     )
