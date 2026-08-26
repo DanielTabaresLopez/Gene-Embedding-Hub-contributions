@@ -1,6 +1,5 @@
 ---
-title: Gene Embeddings Staging
-emoji: 🧬
+title: Gene Embedding Hub
 colorFrom: blue
 colorTo: indigo
 sdk: static
