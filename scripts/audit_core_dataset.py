@@ -9,7 +9,7 @@ from typing import Any
 from huggingface_hub import HfApi, hf_hub_download
 
 
-DATASET_ID = "embeddingsSSRF/gene_embeddings"
+DATASET_ID = "BoevaLab/Gene-Embedding-Hub-dataset"
 
 MANIFEST_CANDIDATES = (
     "data/manifest.csv",

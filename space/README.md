@@ -7,7 +7,7 @@ sdk: static
 app_file: index.html
 pinned: false
 datasets:
-  - embeddingsSSRF/gene_embeddings
+  - BoevaLab/Gene-Embedding-Hub-dataset
 ---
 
 # Gene Embeddings Staging Catalog

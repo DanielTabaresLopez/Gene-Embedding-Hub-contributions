@@ -285,7 +285,7 @@ def main() -> int:
 
     parser.add_argument(
         "--dataset-id",
-        default="embeddingsSSRF/gene_embeddings",
+        default="BoevaLab/Gene-Embedding-Hub-dataset",
     )
     parser.add_argument(
         "--revision",

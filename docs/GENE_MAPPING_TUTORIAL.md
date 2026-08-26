@@ -10,7 +10,7 @@ identifiers into the accepted Ensembl gene universe.
 ## Download the master table
 
 - CSV:
-  https://huggingface.co/datasets/embeddingsSSRF/gene_embeddings/resolve/main/data/master_gene_table.csv?download=true
+  https://huggingface.co/datasets/BoevaLab/Gene-Embedding-Hub-dataset/resolve/main/data/master_gene_table.csv?download=true
 
 The CSV file can be inspected directly or loaded with pandas.
 

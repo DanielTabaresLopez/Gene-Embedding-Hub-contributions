@@ -56,7 +56,7 @@ Start from `portal_template/submission.yaml`.
 
 ~~~bash
 hf upload \
-  embeddingsSSRF/gene_embeddings_staging \
+  BoevaLab/Gene-Embedding-Hub-contributions-staging \
   ./<embedding_id> \
   <embedding_id> \
   --repo-type dataset \

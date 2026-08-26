@@ -44,7 +44,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           HF_RESOURCE: >-
-            datasets/embeddingsSSRF/gene_embeddings_staging
+            datasets/BoevaLab/Gene-Embedding-Hub-contributions-staging
         run: |
           set -euo pipefail
 
@@ -58,7 +58,7 @@ jobs:
 
           python scripts/discover_hf_submission.py \
             --repo-id \
-              embeddingsSSRF/gene_embeddings_staging \
+              BoevaLab/Gene-Embedding-Hub-contributions-staging \
             --repo-type dataset \
             --output discovery.json
 
@@ -121,7 +121,7 @@ jobs:
           HF_TOKEN="${{ secrets.HF_PR_TOKEN }}" \
           python scripts/manage_hf_pr.py \
             --repo-id \
-              embeddingsSSRF/gene_embeddings_staging \
+              BoevaLab/Gene-Embedding-Hub-contributions-staging \
             --repo-type dataset \
             --pr-number "$pr_number" \
             --comment-file dispatch-comment.md

@@ -3,7 +3,7 @@
 
   const DATASET_BASE =
     "https://huggingface.co/datasets/" +
-    "embeddingsSSRF/gene_embeddings_staging/tree/main/";
+    "BoevaLab/Gene-Embedding-Hub-contributions-staging/tree/main/";
 
   const grid = document.getElementById("grid");
   const search = document.getElementById("search");

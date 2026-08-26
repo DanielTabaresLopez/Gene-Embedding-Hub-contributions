@@ -4,7 +4,7 @@ Replace the example repository names before enabling automatic publication.
 
 ## A. Create the public GitHub automation repository
 
-Recommended name: `Gene-Embeddings-Contributions`.
+Recommended name: `Gene-Embedding-Hub-contributions`.
 
 1. Create it as **Public** so standard GitHub-hosted Actions do not consume paid minutes.
 2. Upload the complete contents of this starter kit.
@@ -16,8 +16,8 @@ Recommended name: `Gene-Embeddings-Contributions`.
 
 You need:
 
-- an authoritative Dataset, for example `embeddingsSSRF/gene_embeddings`;
-- a free Static Space, for example `embeddingsSSRF/Gene-Embeddings`.
+- an authoritative Dataset, for example `BoevaLab/Gene-Embedding-Hub-dataset`;
+- a free Static Space, for example `BoevaLab/Gene-Embeddings`.
 
 The Dataset should be public before tokenless automatic publication is enabled. The Space README must use `sdk: static` and `app_file: index.html`.
 
@@ -29,7 +29,7 @@ On the Dataset:
 
 1. Open **Settings → Trusted Publishers**.
 2. Add provider **GitHub Actions**.
-3. Set repository to the exact GitHub automation repository, e.g. `DanielTabaresLopez/Gene-Embeddings-Contributions`.
+3. Set repository to the exact GitHub automation repository, e.g. `DanielTabaresLopez/Gene-Embedding-Hub-contributions`.
 4. Set branch to `main`.
 5. Set workflow to `publish.yml`.
 

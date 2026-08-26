@@ -29,12 +29,12 @@ jobs:
           python -m pip install "huggingface_hub>=1.19.0" hf_xet
       - name: Download current community registry
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
+          HF_OIDC_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-dataset
         run: |
           mkdir -p current-state/registry
 
           hf download \
-            embeddingsSSRF/gene_embeddings \
+            BoevaLab/Gene-Embedding-Hub-dataset \
             data/community_contributions/community_registry.json \
             --repo-type dataset \
             --local-dir current-state/registry

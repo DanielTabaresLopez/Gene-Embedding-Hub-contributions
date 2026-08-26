@@ -71,12 +71,12 @@ jobs:
 
       - name: Download current community registry
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
+          HF_OIDC_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-dataset
         run: |
           mkdir -p current-state/registry
 
           hf download \
-            embeddingsSSRF/gene_embeddings \
+            BoevaLab/Gene-Embedding-Hub-dataset \
             data/community_contributions/community_registry.json \
             --repo-type dataset \
             --local-dir current-state/registry
@@ -87,12 +87,12 @@ jobs:
 
       - name: Download current Space catalog
         env:
-          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
+          HF_OIDC_RESOURCE: spaces/BoevaLab/Gene-Embedding-Hub
         run: |
           mkdir -p current-state/space
 
           hf download \
-            embeddingsSSRF/Gene-Embeddings-Staging \
+            BoevaLab/Gene-Embedding-Hub \
             catalog.json \
             --repo-type space \
             --local-dir current-state/space
@@ -116,10 +116,10 @@ jobs:
 
       - name: Publish package and registry to the Hugging Face Dataset
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
+          HF_OIDC_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-dataset
         run: |
           hf upload \
-            embeddingsSSRF/gene_embeddings \
+            BoevaLab/Gene-Embedding-Hub-dataset \
             dist/dataset \
             . \
             --repo-type dataset \
@@ -127,10 +127,10 @@ jobs:
 
       - name: Publish regenerated Static Space
         env:
-          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
+          HF_OIDC_RESOURCE: spaces/BoevaLab/Gene-Embedding-Hub
         run: |
           hf upload \
-            embeddingsSSRF/Gene-Embeddings-Staging \
+            BoevaLab/Gene-Embedding-Hub \
             dist/space \
             . \
             --repo-type space \
@@ -242,10 +242,10 @@ jobs:
 
       - name: Download current Space catalog
         env:
-          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
+          HF_OIDC_RESOURCE: spaces/BoevaLab/Gene-Embedding-Hub
         run: |
           hf download \
-            embeddingsSSRF/Gene-Embeddings-Staging \
+            BoevaLab/Gene-Embedding-Hub \
             catalog.json \
             --repo-type space \
             --local-dir current-space || true
@@ -262,10 +262,10 @@ jobs:
 
       - name: Publish synchronized catalog and static interface
         env:
-          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
+          HF_OIDC_RESOURCE: spaces/BoevaLab/Gene-Embedding-Hub
         run: |
           hf upload \
-            embeddingsSSRF/Gene-Embeddings-Staging \
+            BoevaLab/Gene-Embedding-Hub \
             dist-space \
             . \
             --repo-type space \
@@ -290,7 +290,7 @@ jobs:
           mkdir -p dist-space current-space
           cp -a space/. dist-space/
           hf download \
-            embeddingsSSRF/Gene-Embeddings-Staging \
+            BoevaLab/Gene-Embedding-Hub \
             catalog.json \
             --repo-type space \
             --local-dir current-space || true
@@ -299,10 +299,10 @@ jobs:
           fi
       - name: Publish the static interface without replacing its catalog
         env:
-          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
+          HF_OIDC_RESOURCE: spaces/BoevaLab/Gene-Embedding-Hub
         run: |
           hf upload \
-            embeddingsSSRF/Gene-Embeddings-Staging \
+            BoevaLab/Gene-Embedding-Hub \
             dist-space \
             . \
             --repo-type space \
@@ -352,7 +352,7 @@ jobs:
       - name: Inspect the Hugging Face PR repository trees
         id: inspect
         env:
-          HF_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-contributions-staging
           HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
         run: |
           set -euo pipefail
@@ -396,7 +396,7 @@ jobs:
           export HF_TOKEN="$hf_token"
 
           hf discussions info \
-            embeddingsSSRF/gene_embeddings_staging \
+            BoevaLab/Gene-Embedding-Hub-contributions-staging \
             "$HF_PR_NUMBER" \
             --repo-type dataset \
             --format json \
@@ -404,7 +404,7 @@ jobs:
 
           python scripts/build_hf_pr_diff.py \
             --repo-id \
-              embeddingsSSRF/gene_embeddings_staging \
+              BoevaLab/Gene-Embedding-Hub-contributions-staging \
             --repo-type dataset \
             --pr-number "$HF_PR_NUMBER" \
             --info-json hf-pr-state/info.json \
@@ -434,14 +434,14 @@ jobs:
 
       - name: Download the proposed package from the PR revision
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_OIDC_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-contributions-staging
           HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
           PACKAGE_PATH: ${{ steps.inspect.outputs.package_path }}
         run: |
           set -euo pipefail
 
           hf download \
-            embeddingsSSRF/gene_embeddings_staging \
+            BoevaLab/Gene-Embedding-Hub-contributions-staging \
             --repo-type dataset \
             --revision "refs/pr/${HF_PR_NUMBER}" \
             --include "${PACKAGE_PATH}/*" \
@@ -461,28 +461,28 @@ jobs:
 
       - name: Download the current community registry
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
+          HF_OIDC_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-dataset
         run: |
           set -euo pipefail
 
           mkdir -p current-state/dataset
 
           hf download \
-            embeddingsSSRF/gene_embeddings \
+            BoevaLab/Gene-Embedding-Hub-dataset \
             data/community_contributions/community_registry.json \
             --repo-type dataset \
             --local-dir current-state/dataset
 
       - name: Download the current Space catalog
         env:
-          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
+          HF_OIDC_RESOURCE: spaces/BoevaLab/Gene-Embedding-Hub
         run: |
           set -euo pipefail
 
           mkdir -p current-state/space
 
           hf download \
-            embeddingsSSRF/Gene-Embeddings-Staging \
+            BoevaLab/Gene-Embedding-Hub \
             catalog.json \
             --repo-type space \
             --local-dir current-state/space
@@ -533,7 +533,7 @@ jobs:
       - name: Comment when validation fails
         if: steps.release.outputs.exit_code != '0'
         env:
-          HF_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-contributions-staging
           HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
         run: |
           set -euo pipefail
@@ -560,7 +560,7 @@ jobs:
           HF_TOKEN="${{ secrets.HF_PR_TOKEN }}" \
           python scripts/manage_hf_pr.py \
             --repo-id \
-              embeddingsSSRF/gene_embeddings_staging \
+              BoevaLab/Gene-Embedding-Hub-contributions-staging \
             --repo-type dataset \
             --pr-number "$HF_PR_NUMBER" \
             --comment-file "$comment_file"
@@ -573,14 +573,14 @@ jobs:
 
       - name: Publish the accepted package centrally
         env:
-          HF_OIDC_RESOURCE: datasets/embeddingsSSRF/gene_embeddings
+          HF_OIDC_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-dataset
           EMBEDDING_ID: ${{ steps.inspect.outputs.embedding_id }}
           HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
         run: |
           set -euo pipefail
 
           hf upload \
-            embeddingsSSRF/gene_embeddings \
+            BoevaLab/Gene-Embedding-Hub-dataset \
             dist/dataset \
             . \
             --repo-type dataset \
@@ -589,14 +589,14 @@ jobs:
 
       - name: Publish the updated static Space
         env:
-          HF_OIDC_RESOURCE: spaces/embeddingsSSRF/Gene-Embeddings-Staging
+          HF_OIDC_RESOURCE: spaces/BoevaLab/Gene-Embedding-Hub
           EMBEDDING_ID: ${{ steps.inspect.outputs.embedding_id }}
           HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
         run: |
           set -euo pipefail
 
           hf upload \
-            embeddingsSSRF/Gene-Embeddings-Staging \
+            BoevaLab/Gene-Embedding-Hub \
             dist/space \
             . \
             --repo-type space \
@@ -605,7 +605,7 @@ jobs:
 
       - name: Report acceptance and close the Hugging Face PR
         env:
-          HF_RESOURCE: datasets/embeddingsSSRF/gene_embeddings_staging
+          HF_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-contributions-staging
           EMBEDDING_ID: ${{ steps.inspect.outputs.embedding_id }}
           HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
         run: |
@@ -637,7 +637,7 @@ jobs:
           HF_TOKEN="${{ secrets.HF_PR_TOKEN }}" \
           python scripts/manage_hf_pr.py \
             --repo-id \
-              embeddingsSSRF/gene_embeddings_staging \
+              BoevaLab/Gene-Embedding-Hub-contributions-staging \
             --repo-type dataset \
             --pr-number "$HF_PR_NUMBER" \
             --comment-file hf-pr-success-comment.md \
