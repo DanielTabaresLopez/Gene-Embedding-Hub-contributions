@@ -464,7 +464,12 @@ def main() -> int:
         algorithm = text_value(
             first_value(
                 metadata,
+                "method_description",
+                "embedding_method",
+                "original_model_or_method",
                 "original_method",
+                "method",
+                "algorithm",
                 "model_checkpoint",
                 "model",
                 "transform",
@@ -472,7 +477,7 @@ def main() -> int:
                 "pooled_representation",
                 "pooling_strategy",
             )
-        ) or "see package metadata"
+        )
 
         description = text_value(
             first_value(
@@ -485,8 +490,7 @@ def main() -> int:
 
         if description is None:
             description = (
-                f"{name}. Core embedding package from "
-                f"{args.dataset_id}."
+                f"Core embedding package from {args.dataset_id}."
             )
 
         qc_status = text_value(
@@ -502,8 +506,26 @@ def main() -> int:
                 metadata,
                 "source_license",
                 "license",
+                "model_license",
+                "dataset_license",
+                "original_license",
+                "upstream_license",
             )
-        ) or "not recorded in package metadata"
+        )
+        source_license_url = text_value(
+            first_value(
+                metadata,
+                "source_license_url",
+                "license_url",
+                "terms_url",
+                "original_source_url",
+                "official_source_url",
+                "source_url",
+                "model_card_url",
+                "repository_url",
+                "paper_url",
+            )
+        )
 
         zero_vectors = zero_vector_count(metadata)
 
@@ -524,6 +546,7 @@ def main() -> int:
             "coverage_pct": coverage_pct,
             "qc_status": qc_status,
             "license": source_license,
+            "license_url": source_license_url,
             "zero_vectors": zero_vectors,
             "dataset_path": package_path,
             "package_url": (

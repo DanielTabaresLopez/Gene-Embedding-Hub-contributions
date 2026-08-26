@@ -33,6 +33,23 @@
     return div.innerHTML;
   };
 
+
+  const externalValue = (label, url) => {
+    const safeLabel = escapeHtml(label || "—");
+    const rawUrl = String(url || "").trim();
+
+    if (!/^https?:\/\//i.test(rawUrl)) {
+      return safeLabel;
+    }
+
+    return `
+      <a
+        href="${escapeHtml(rawUrl)}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >${safeLabel}</a>`;
+  };
+
   const communityBadge = (item) => {
     if (item.community_contribution !== true) {
       return "";
@@ -216,20 +233,8 @@
       </p>
 
       <p>
-        <b>QC:</b>
-        ${escapeHtml(item.qc_status || "legacy package")}
-      </p>
-
-      <p>
         <b>License:</b>
-        ${escapeHtml(
-          item.license || "see package metadata"
-        )}
-      </p>
-
-      <p>
-        <b>Source Dataset:</b>
-        ${escapeHtml(item.source_dataset || "—")}
+        ${externalValue(item.license, item.license_url)}
       </p>
 
       ${contributorDetail(item)}
