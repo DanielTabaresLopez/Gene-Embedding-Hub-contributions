@@ -1,5 +1,6 @@
 ---
 title: Gene Embedding Hub
+emoji: 🧬
 colorFrom: blue
 colorTo: indigo
 sdk: static
