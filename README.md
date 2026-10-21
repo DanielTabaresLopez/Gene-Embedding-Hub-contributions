@@ -25,5 +25,3 @@ compliance**, not independent scientific or legal endorsement.
 Contributor instructions are available in
 [`docs/HUGGINGFACE_SUBMISSION.md`](docs/HUGGINGFACE_SUBMISSION.md).
 
-Maintainer setup documentation is available in
-[`docs/SETUP.md`](docs/SETUP.md).
