@@ -40,7 +40,7 @@ Start from `portal_template/submission.yaml`.
 1. Open the Gene Embeddings Space.
 2. Click **Upload an embedding**.
 3. Sign in to Hugging Face.
-4. Upload the five files under:
+4. Upload the four files under:
 
    ~~~text
    <embedding_id>/
@@ -71,19 +71,19 @@ Change the status to Open or Ready for review before processing.
 
 Recommended catalog categories are:
 
-- DNA
+- Biomedical text
+- DNA sequence
 - Expression
-- Functional Genomics
-- Knowledge
-- Literature
+- Functional
+- Knowledge graph
 - Multimodal
-- Network
-- Protein
-- RNA
-- Regulatory
+- Networks
+- Protein sequence
+- RNA sequence
+- Regulatory genomics
 - Single-cell
 
-Matching is case-insensitive. A different value is accepted but
+Matching is case-insensitive. Previous category labels are translated to their current names. A different value is accepted but
 displayed under `Other`. The originally submitted value is
 preserved in the provenance and validation report.
 
@@ -95,7 +95,7 @@ GitHub Actions:
 2. ensure the PR adds exactly one permitted package folder;
 3. validate the matrix, genes, metadata, provenance, licensing,
    and attestations;
-4. copy a strict-PASS package into the library Dataset;
+4. copy a PASS package into the library Dataset;
 5. update the registry and static Space;
 6. comment on and close the Hugging Face Pull Request.
 
@@ -115,15 +115,18 @@ Do not place personal email addresses, patient information,
 patient-level data, credentials, access tokens, or other
 sensitive information in the submission.
 
-## Staging status
+## Automatic processing and corrections
 
-The current Space button targets the staging Dataset. While that
-Dataset is private, only organization members or users with
-access can submit.
-
-During the current staging checkpoint, a maintainer starts the
-processor manually. Scheduled discovery of new open Pull Requests
-will be enabled after the interface is verified.
+The staging Dataset is public. Open PRs are discovered automatically; scheduling
+can be delayed by GitHub. A draft must first be marked ready for review.
+A correction can be committed to the same PR: the complete proposed package is
+validated at one immutable commit. Technical rejection reports identify the
+blocking checks. Infrastructure failures include a workflow link and can be
+retried after six hours, up to three attempts for the same PR revision and
+validator version. Changes to the data or trusted validator allow fresh validation.
+An interrupted release can resume when the PR revision and all package checksums
+match the previously recorded attempt. Routine submissions update catalogue data
+without replacing the static interface.
 
 ## Submission template and completed example
 
@@ -132,7 +135,7 @@ section headers `scientific`, `provenance`, `licensing`, and
 `attestations` unchanged, and replace the values nested inside them.
 
 `submission.example.yaml` is a completed real-world example based on
-the ESM2-v1.1 embedding processed in this project. It uses actual
+the ESM-2 embedding processed in this project. It uses actual
 scientific and provenance values and intentionally omits optional fields
 whose exact values were not verified. It must not be submitted unchanged.
 

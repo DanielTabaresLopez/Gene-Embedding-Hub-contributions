@@ -961,3 +961,85 @@ body::before {
       );
   }
 }
+
+/* BEGIN FINAL MODALITY LABEL PALETTES */
+/* These selectors mirror the existing Space palette under the final taxonomy labels. */
+.category-dna-sequence {
+  --category-background: #eef5ff;
+  --category-border: #aac9ef;
+  --category-accent: #2869c7;
+  --category-badge: #dae9fc;
+}
+
+.category-expression {
+  --category-background: #fff4e9;
+  --category-border: #edc69a;
+  --category-accent: #b96512;
+  --category-badge: #ffe3c3;
+}
+
+.category-functional-genomics,
+.category-functional {
+  --category-background: #edf9f1;
+  --category-border: #acd8b8;
+  --category-accent: #267842;
+  --category-badge: #d7f0df;
+}
+
+.category-knowledge-graph,
+.category-ontologies {
+  --category-background: #f5efff;
+  --category-border: #cbb5e9;
+  --category-accent: #7044ac;
+  --category-badge: #e8dcfa;
+}
+
+.category-biomedical-text {
+  --category-background: #fff0f4;
+  --category-border: #e8b5c4;
+  --category-accent: #ac3e61;
+  --category-badge: #f9dce4;
+}
+
+.category-multimodal {
+  --category-background: #eaf9fb;
+  --category-border: #a5d7dd;
+  --category-accent: #177684;
+  --category-badge: #d3eff2;
+}
+
+.category-networks {
+  --category-background: #fff0ee;
+  --category-border: #eab3ab;
+  --category-accent: #af4437;
+  --category-badge: #f9d9d4;
+}
+
+.category-protein-sequence {
+  --category-background: #edf8f6;
+  --category-border: #a5d4cb;
+  --category-accent: #187361;
+  --category-badge: #d2ede7;
+}
+
+.category-rna-sequence {
+  --category-background: #fff9e7;
+  --category-border: #e3cb88;
+  --category-accent: #8a6810;
+  --category-badge: #f5e7b6;
+}
+
+.category-regulatory-genomics {
+  --category-background: #f0f1ff;
+  --category-border: #b7bae7;
+  --category-accent: #4c50ae;
+  --category-badge: #dedff8;
+}
+
+.category-single-cell {
+  --category-background: #fff0fa;
+  --category-border: #e1b2d2;
+  --category-accent: #9f3e7f;
+  --category-badge: #f4daeb;
+}
+/* END FINAL MODALITY LABEL PALETTES */

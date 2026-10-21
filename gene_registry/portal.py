@@ -55,6 +55,8 @@ def parse_submission_path(
     raw_path: str,
 ) -> tuple[str, str, str]:
     path = PurePosixPath(raw_path)
+    if path.is_absolute() or ".." in path.parts or "\\" in raw_path:
+        raise ValueError(f"Unsafe submission path: {raw_path!r}")
     parts = path.parts
 
     if len(parts) == 2:

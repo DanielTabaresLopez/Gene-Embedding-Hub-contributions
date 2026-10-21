@@ -13,6 +13,7 @@ def main() -> int:
     parser.add_argument("--registry-file", required=True)
     parser.add_argument("--submissions", required=True)
     parser.add_argument("--github-output", required=True)
+    parser.add_argument("--project", default="config/project.yaml")
 
     args = parser.parse_args()
 
@@ -33,6 +34,8 @@ def main() -> int:
     }
 
     missing: list[str] = []
+    project = yaml.safe_load(Path(args.project).read_text(encoding="utf-8"))
+    retired = set(project.get("retired_legacy_submission_ids", []))
 
     for path in sorted(
         Path(args.submissions).glob("*.y*ml")
@@ -44,7 +47,7 @@ def main() -> int:
             path.read_text(encoding="utf-8")
         )
 
-        if document.get("embedding_id") not in published:
+        if document.get("embedding_id") not in published | retired:
             missing.append(str(path))
 
     selected = missing[0] if missing else ""

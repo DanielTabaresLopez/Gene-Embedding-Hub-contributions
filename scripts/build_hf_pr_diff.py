@@ -120,7 +120,7 @@ def main() -> int:
         api=api,
         repo_id=args.repo_id,
         repo_type=args.repo_type,
-        revision=pr_revision,
+        revision=head_sha,
     )
 
     changes = compare_repo_trees(

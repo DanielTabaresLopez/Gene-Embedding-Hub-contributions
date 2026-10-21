@@ -38,23 +38,16 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e .
           python -m pip install \
-            "huggingface_hub>=1.19.0"
+            "huggingface_hub==2.2.0"
 
       - name: Discover and dispatch one submission
         env:
           GH_TOKEN: ${{ github.token }}
-          HF_RESOURCE: >-
-            datasets/BoevaLab/Gene-Embedding-Hub-contributions-staging
+          HF_PR_TOKEN: ${{ secrets.HF_PR_TOKEN }}
         run: |
           set -euo pipefail
 
-          hf_token="$(
-            bash scripts/exchange_hf_oidc_token.sh \
-              "$HF_RESOURCE"
-          )"
-
-          echo "::add-mask::$hf_token"
-          export HF_TOKEN="$hf_token"
+          test -n "$HF_PR_TOKEN" || { echo "HF_PR_TOKEN is required for submission feedback"; exit 1; }
 
           python scripts/discover_hf_submission.py \
             --repo-id \
@@ -90,6 +83,7 @@ jobs:
             --arg submission_file "" \
             --arg hf_pr_number "$pr_number" \
             --arg hf_pr_author "$pr_author" \
+            --arg hf_pr_revision "$head_sha" \
             '{
               ref: $ref,
               inputs: {
@@ -97,7 +91,8 @@ jobs:
                 accepted_commit: $accepted_commit,
                 submission_file: $submission_file,
                 hf_pr_number: $hf_pr_number,
-                hf_pr_author: $hf_pr_author
+                hf_pr_author: $hf_pr_author,
+                hf_pr_revision: $hf_pr_revision
               }
             }' \
             > workflow-dispatch.json
@@ -107,15 +102,16 @@ jobs:
             "repos/${GITHUB_REPOSITORY}/actions/workflows/publish.yml/dispatches" \
             --input workflow-dispatch.json
 
+          dispatch_marker="$(jq -r .marker discovery.json)"
           cat > dispatch-comment.md <<EOF
-          <!-- gene-embeddings-auto-dispatched:${head_sha} -->
+          ${dispatch_marker}
 
           Automatic validation has been queued for this Pull Request revision.
 
           - PR: #${pr_number}
           - Revision: \`${head_sha}\`
 
-          A new commit to this Pull Request will be treated as a new revision and may be validated again.
+          Interrupted runs can be retried after six hours, up to three attempts per revision and validator version. A new commit or validator update allows fresh validation.
           EOF
 
           HF_TOKEN="${{ secrets.HF_PR_TOKEN }}" \

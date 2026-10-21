@@ -1,6 +1,6 @@
 # Automatic acceptance policy
 
-A contribution is automatically accepted only when the configured validator returns a strict `PASS` with no warnings.
+A contribution is automatically accepted when the configured validator returns `PASS`. Exact repeated vectors and constant feature columns are reported as advisory `INFO` checks under the current policy; they can be legitimate representations. Setting their explicit `fail_on_*` flags to `true` makes them blocking again. Zero vectors, non-finite values, identifier and shape errors remain blocking.
 
 The default starter policy checks:
 

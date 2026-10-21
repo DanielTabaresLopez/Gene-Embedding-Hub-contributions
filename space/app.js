@@ -3,7 +3,7 @@
 
   const DATASET_BASE =
     "https://huggingface.co/datasets/" +
-    "BoevaLab/Gene-Embedding-Hub-contributions-staging/tree/main/";
+    "BoevaLab/Gene-Embedding-Hub-dataset/tree/main/";
 
   const grid = document.getElementById("grid");
   const search = document.getElementById("search");
@@ -186,7 +186,6 @@
       `data/embeddings/${item.id}`;
 
     const packageUrl =
-      item.package_url ||
       `${DATASET_BASE}${encodeURI(path)}`;
 
     detail.innerHTML = `
@@ -221,23 +220,7 @@
           coverage
         </div>
       </div>
-
-      <p>
-        <b>Modality:</b>
-        ${escapeHtml(item.modality || "—")}
-      </p>
-
-      <p>
-        <b>Method:</b>
-        ${escapeHtml(item.algorithm || "—")}
-      </p>
-
-      <p>
-        <b>License:</b>
-        ${externalValue(item.license, item.license_url)}
-      </p>
-
-      ${contributorDetail(item)}
+${contributorDetail(item)}
 
       <a
         class="button primary"

@@ -31,8 +31,8 @@ def test_completed_submission_example() -> None:
         "schemas/portal_submission.schema.json",
     )
 
-    assert document["embedding_id"] == "esm2_v1_1"
-    assert document["display_name"] == "ESM2-v1.1"
+    assert document["embedding_id"] == "esm2"
+    assert document["display_name"] == "ESM-2"
 
     assert document["contributor"] == {
         "name": "Daniel Tabares Lopez",
@@ -41,7 +41,7 @@ def test_completed_submission_example() -> None:
 
     scientific = document["scientific"]
 
-    assert scientific["category"] == "Protein"
+    assert scientific["category"] == "Protein sequence"
     assert scientific["modality"] == "Protein sequence"
     assert scientific["model_checkpoint"] == (
         "esm2_t33_650M_UR50D"

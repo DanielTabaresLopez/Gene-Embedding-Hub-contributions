@@ -1,4 +1,5 @@
 name: Publish to Hugging Face
+run-name: "${{ inputs.mode }} · HF PR ${{ inputs.hf_pr_number }} · ${{ inputs.hf_pr_revision }}"
 
 on:
   workflow_dispatch:
@@ -23,6 +24,10 @@ on:
         type: string
       hf_pr_number:
         description: Hugging Face Dataset Pull Request number
+        required: false
+        type: string
+      hf_pr_revision:
+        description: Immutable PR commit queued by discovery (optional for manual runs)
         required: false
         type: string
       hf_pr_author:
@@ -67,39 +72,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .
-          python -m pip install "huggingface_hub>=1.19.0" hf_xet
+          python -m pip install "huggingface_hub==2.2.0" hf_xet
 
-      - name: Download current community registry
-        env:
-          HF_OIDC_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-dataset
-        run: |
-          mkdir -p current-state/registry
-
-          hf download \
-            BoevaLab/Gene-Embedding-Hub-dataset \
-            data/community_contributions/community_registry.json \
-            --repo-type dataset \
-            --local-dir current-state/registry
-
-          cp \
-            current-state/registry/data/community_contributions/community_registry.json \
-            current-state/community_registry.json
-
-      - name: Download current Space catalog
-        env:
-          HF_OIDC_RESOURCE: spaces/BoevaLab/Gene-Embedding-Hub
-        run: |
-          mkdir -p current-state/space
-
-          hf download \
-            BoevaLab/Gene-Embedding-Hub \
-            catalog.json \
-            --repo-type space \
-            --local-dir current-state/space
-
-          cp \
-            current-state/space/catalog.json \
-            current-state/catalog.json
+      - name: Read current public registry and catalogue
+        run: python -m scripts.fetch_current_state --output current-state
 
       - name: Revalidate and prepare Dataset and Space payloads
         run: |
@@ -157,7 +133,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .
-          python -m pip install "huggingface_hub>=1.19.0" hf_xet
+          python -m pip install "huggingface_hub==2.2.0" hf_xet
 
       - name: Prepare reviewed core catalog
         run: |
@@ -184,7 +160,7 @@ jobs:
 
           expected_count = int(project["core_expected_count"])
           expected_dataset = project["core_dataset_id"]
-          expected_revision = project["core_dataset_revision"]
+          expected_revisions = set(project.get("core_source_revisions", [project["core_dataset_revision"]]))
 
           errors = []
           ids = []
@@ -206,7 +182,7 @@ jobs:
                           f"{embedding_id}: incorrect source Dataset"
                       )
 
-                  if entry.get("source_revision") != expected_revision:
+                  if entry.get("source_revision") not in expected_revisions:
                       errors.append(
                           f"{embedding_id}: incorrect source revision"
                       )
@@ -228,7 +204,7 @@ jobs:
           print("Reviewed core entries:", len(catalog))
           print("Unique embedding IDs:", len(set(ids)))
           print("Source Dataset:", expected_dataset)
-          print("Source revision:", expected_revision)
+          print("Source revisions:", sorted(expected_revisions))
           print("Validation errors:", len(errors))
 
           for error in errors:
@@ -241,14 +217,12 @@ jobs:
           PYCODE
 
       - name: Download current Space catalog
-        env:
-          HF_OIDC_RESOURCE: spaces/BoevaLab/Gene-Embedding-Hub
         run: |
           hf download \
             BoevaLab/Gene-Embedding-Hub \
             catalog.json \
             --repo-type space \
-            --local-dir current-space || true
+            --local-dir current-space
 
       - name: Preserve community additions and merge catalogs
         run: |
@@ -284,7 +258,7 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install HF CLI
-        run: python -m pip install "huggingface_hub>=1.19.0" hf_xet
+        run: python -m pip install "huggingface_hub==2.2.0" hf_xet
       - name: Preserve the current remote catalog and prepare static files
         run: |
           mkdir -p dist-space current-space
@@ -293,10 +267,11 @@ jobs:
             BoevaLab/Gene-Embedding-Hub \
             catalog.json \
             --repo-type space \
-            --local-dir current-space || true
+            --local-dir current-space
           if [ -f current-space/catalog.json ]; then
             cp current-space/catalog.json dist-space/catalog.json
           fi
+          python -m scripts.refresh_catalog_summary --catalog dist-space/catalog.json --output dist-space/release_summary.json
       - name: Publish the static interface without replacing its catalog
         env:
           HF_OIDC_RESOURCE: spaces/BoevaLab/Gene-Embedding-Hub
@@ -312,336 +287,103 @@ jobs:
     if: inputs.mode == 'hf_portal_pr'
     runs-on: ubuntu-latest
     timeout-minutes: 300
-
     steps:
-      - name: Validate workflow inputs
-        env:
-          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
-          HF_PR_AUTHOR: ${{ inputs.hf_pr_author }}
-        run: |
-          set -euo pipefail
-
-          [[ "$HF_PR_NUMBER" =~ ^[1-9][0-9]*$ ]] || {
-            echo "hf_pr_number must be a positive integer"
-            exit 1
-          }
-
-          [[ "$HF_PR_AUTHOR" =~ ^[A-Za-z0-9._-]{1,96}$ ]] || {
-            echo "hf_pr_author contains unsupported characters"
-            exit 1
-          }
-
-      - name: Check out trusted portal code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           ref: main
           persist-credentials: false
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: pip
-
-      - name: Install portal tooling
+      - name: Install trusted portal tooling
+        run: python -m pip install -e . "huggingface_hub==2.2.0"
+      - name: Validate workflow inputs
+        env:
+          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
+          HF_PR_REVISION: ${{ inputs.hf_pr_revision }}
+          HF_PR_TOKEN: ${{ secrets.HF_PR_TOKEN }}
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -e .
-          python -m pip install "huggingface_hub>=1.19.0" hf_xet
-
-      - name: Inspect the Hugging Face PR repository trees
+          [[ "$HF_PR_NUMBER" =~ ^[1-9][0-9]*$ ]]
+          [[ -z "$HF_PR_REVISION" || "$HF_PR_REVISION" =~ ^[0-9a-f]{40}$ ]]
+          test -n "$HF_PR_TOKEN" || { echo "Configure the existing HF_PR_TOKEN secret for PR feedback"; exit 1; }
+      - name: Inspect the complete PR at an immutable commit
         id: inspect
         env:
-          HF_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-contributions-staging
           HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
+          HF_PR_REVISION: ${{ inputs.hf_pr_revision }}
         run: |
-          set -euo pipefail
-
-          mkdir -p hf-pr-state
-
-          oidc_token="$(
-            curl \
-              --fail \
-              --silent \
-              --show-error \
-              -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
-              "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=https%3A%2F%2Fhuggingface.co" \
-            | jq -er '.value'
-          )"
-
-          hf_token="$(
-            jq -n \
-              --arg subject_token "$oidc_token" \
-              --arg resource "$HF_RESOURCE" \
-              '{
-                grant_type:
-                  "urn:ietf:params:oauth:grant-type:token-exchange",
-                subject_token_type:
-                  "urn:ietf:params:oauth:token-type:id_token",
-                subject_token: $subject_token,
-                resource: $resource
-              }' \
-            | curl \
-                --fail-with-body \
-                --silent \
-                --show-error \
-                -X POST \
-                -H "Content-Type: application/json" \
-                --data-binary @- \
-                https://huggingface.co/oauth/token \
-            | jq -er '.access_token'
-          )"
-
-          echo "::add-mask::$hf_token"
-          export HF_TOKEN="$hf_token"
-
-          hf discussions info \
-            BoevaLab/Gene-Embedding-Hub-contributions-staging \
-            "$HF_PR_NUMBER" \
-            --repo-type dataset \
-            --format json \
-            > hf-pr-state/info.json
-
-          python scripts/build_hf_pr_diff.py \
-            --repo-id \
-              BoevaLab/Gene-Embedding-Hub-contributions-staging \
-            --repo-type dataset \
+          python -m scripts.inspect_portal_pr \
+            --repo-id BoevaLab/Gene-Embedding-Hub-contributions-staging \
             --pr-number "$HF_PR_NUMBER" \
-            --info-json hf-pr-state/info.json \
-            --output hf-pr-state/pr.diff \
-            --summary-json \
-              hf-pr-state/tree-comparison.json
-
-          python scripts/inspect_hf_pr.py \
-            --diff-file hf-pr-state/pr.diff \
+            --expected-revision "$HF_PR_REVISION" \
             --output hf-pr-state/inspection.json
-
-          embedding_id="$(
-            jq -r '.embedding_id' \
-              hf-pr-state/inspection.json
-          )"
-
-          package_path="$(
-            jq -r '.package_path' \
-              hf-pr-state/inspection.json
-          )"
-
-          echo "embedding_id=$embedding_id" \
-            >> "$GITHUB_OUTPUT"
-
-          echo "package_path=$package_path" \
-            >> "$GITHUB_OUTPUT"
-
-      - name: Download the proposed package from the PR revision
+          jq -r '"head_sha=\(.head_sha)", "package_path=\(.package_path)", "embedding_id=\(.embedding_id)", "pr_author=\(.pr_author)"' hf-pr-state/inspection.json >> "$GITHUB_OUTPUT"
+      - name: Download exactly the inspected package revision
         env:
-          HF_OIDC_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-contributions-staging
-          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
+          HF_PR_REVISION: ${{ steps.inspect.outputs.head_sha }}
           PACKAGE_PATH: ${{ steps.inspect.outputs.package_path }}
         run: |
-          set -euo pipefail
-
-          hf download \
-            BoevaLab/Gene-Embedding-Hub-contributions-staging \
-            --repo-type dataset \
-            --revision "refs/pr/${HF_PR_NUMBER}" \
-            --include "${PACKAGE_PATH}/*" \
-            --local-dir pr-snapshot
-
-          test -f \
-            "pr-snapshot/${PACKAGE_PATH}/embeddings.npz"
-
-          test -f \
-            "pr-snapshot/${PACKAGE_PATH}/genes.tsv"
-
-          test -f \
-            "pr-snapshot/${PACKAGE_PATH}/README.md"
-
-          test -f \
-            "pr-snapshot/${PACKAGE_PATH}/submission.yaml"
-
-      - name: Download the current community registry
-        env:
-          HF_OIDC_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-dataset
-        run: |
-          set -euo pipefail
-
-          mkdir -p current-state/dataset
-
-          hf download \
-            BoevaLab/Gene-Embedding-Hub-dataset \
-            data/community_contributions/community_registry.json \
-            --repo-type dataset \
-            --local-dir current-state/dataset
-
-      - name: Download the current Space catalog
-        env:
-          HF_OIDC_RESOURCE: spaces/BoevaLab/Gene-Embedding-Hub
-        run: |
-          set -euo pipefail
-
-          mkdir -p current-state/space
-
-          hf download \
-            BoevaLab/Gene-Embedding-Hub \
-            catalog.json \
-            --repo-type space \
-            --local-dir current-state/space
-
-      - name: Validate and prepare the central release
+          hf download BoevaLab/Gene-Embedding-Hub-contributions-staging \
+            --repo-type dataset --revision "$HF_PR_REVISION" \
+            --include "$PACKAGE_PATH/*" --local-dir pr-snapshot
+      - name: Read current public registry and catalogue
+        run: python -m scripts.fetch_current_state --output current-state
+      - name: Validate and prepare the release
         id: release
         env:
-          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
-          HF_PR_AUTHOR: ${{ inputs.hf_pr_author }}
           PACKAGE_PATH: ${{ steps.inspect.outputs.package_path }}
+          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
+          HF_PR_AUTHOR: ${{ steps.inspect.outputs.pr_author }}
+          HF_PR_REVISION: ${{ steps.inspect.outputs.head_sha }}
         run: |
-          set +e
-
-          python scripts/prepare_portal_release.py \
-            --package-dir "pr-snapshot/${PACKAGE_PATH}" \
-            --submission \
-              "pr-snapshot/${PACKAGE_PATH}/submission.yaml" \
-            --project config/project.yaml \
-            --policy config/policy.yaml \
-            --modalities config/modalities.yaml \
-            --master-genes reference/master_gene_ids.txt \
-            --schema-dir schemas \
-            --space-source space \
-            --existing-registry \
-              current-state/dataset/data/community_contributions/community_registry.json \
-            --existing-catalog \
-              current-state/space/catalog.json \
-            --hf-pr-number "$HF_PR_NUMBER" \
-            --hf-pr-author "$HF_PR_AUTHOR" \
-            --output-dir dist
-
-          code=$?
-
-          echo "exit_code=$code" \
-            >> "$GITHUB_OUTPUT"
-
-          exit 0
-
-      - name: Preserve validation reports
+          python -m scripts.prepare_portal_release \
+            --package-dir "pr-snapshot/$PACKAGE_PATH" \
+            --submission "pr-snapshot/$PACKAGE_PATH/submission.yaml" \
+            --project config/project.yaml --policy config/policy.yaml \
+            --modalities config/modalities.yaml --master-genes reference/master_gene_ids.txt \
+            --schema-dir schemas --space-source space \
+            --existing-registry current-state/community_registry.json \
+            --existing-catalog current-state/catalog.json \
+            --hf-pr-number "$HF_PR_NUMBER" --hf-pr-author "$HF_PR_AUTHOR" \
+            --hf-pr-revision "$HF_PR_REVISION" --output-dir dist
+      - name: Publish the accepted package and registry
+        id: dataset
+        env:
+          HF_OIDC_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-dataset
+          EMBEDDING_ID: ${{ steps.inspect.outputs.embedding_id }}
+        run: |
+          python -m scripts.publish_payload --target dataset --folder dist/dataset \
+            --message "Accept $EMBEDDING_ID from a validated Hugging Face PR"
+      - name: Publish catalogue data while preserving the interface
+        id: space
+        env:
+          HF_OIDC_RESOURCE: spaces/BoevaLab/Gene-Embedding-Hub
+          EMBEDDING_ID: ${{ steps.inspect.outputs.embedding_id }}
+        run: |
+          python -m scripts.publish_payload --target space --folder dist/space \
+            --message "Add $EMBEDDING_ID to the catalogue"
+      - name: Preserve reports and inspected revision
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: hf-pr-${{ inputs.hf_pr_number }}-validation
-          path: dist/reports
+          name: hf-pr-${{ inputs.hf_pr_number }}-${{ github.run_id }}
+          path: |
+            dist/reports
+            hf-pr-state
+            current-state/state.json
           if-no-files-found: warn
           retention-days: 30
-
-      - name: Comment when validation fails
-        if: steps.release.outputs.exit_code != '0'
+      - name: Report the outcome and close only the accepted revision
+        if: always()
         env:
-          HF_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-contributions-staging
+          HF_TOKEN: ${{ secrets.HF_PR_TOKEN }}
           HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
+          HF_PR_REVISION: ${{ inputs.hf_pr_revision }}
+          PUBLISHED: ${{ steps.dataset.outcome == 'success' && steps.space.outcome == 'success' }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          set -euo pipefail
-
-          hf_token="$(
-            bash scripts/exchange_hf_oidc_token.sh \
-              "$HF_RESOURCE"
-          )"
-
-          echo "::add-mask::$hf_token"
-          export HF_TOKEN="$hf_token"
-
-          if [ -f dist/reports/validation_summary.md ]; then
-            comment_file="dist/reports/validation_summary.md"
-          else
-            comment_file="hf-pr-failure-comment.md"
-
-            cat > "$comment_file" <<'EOF'
-          Automatic validation failed before a complete report could
-          be generated. Nothing was published.
-          EOF
-          fi
-
-          HF_TOKEN="${{ secrets.HF_PR_TOKEN }}" \
-          python scripts/manage_hf_pr.py \
-            --repo-id \
-              BoevaLab/Gene-Embedding-Hub-contributions-staging \
-            --repo-type dataset \
-            --pr-number "$HF_PR_NUMBER" \
-            --comment-file "$comment_file"
-
-      - name: Stop when validation did not strictly pass
-        if: steps.release.outputs.exit_code != '0'
-        run: |
-          echo "The Hugging Face submission was not published."
-          exit 1
-
-      - name: Publish the accepted package centrally
-        env:
-          HF_OIDC_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-dataset
-          EMBEDDING_ID: ${{ steps.inspect.outputs.embedding_id }}
-          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
-        run: |
-          set -euo pipefail
-
-          hf upload \
-            BoevaLab/Gene-Embedding-Hub-dataset \
-            dist/dataset \
-            . \
-            --repo-type dataset \
-            --commit-message \
-              "Accept ${EMBEDDING_ID} from HF PR #${HF_PR_NUMBER}"
-
-      - name: Publish the updated static Space
-        env:
-          HF_OIDC_RESOURCE: spaces/BoevaLab/Gene-Embedding-Hub
-          EMBEDDING_ID: ${{ steps.inspect.outputs.embedding_id }}
-          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
-        run: |
-          set -euo pipefail
-
-          hf upload \
-            BoevaLab/Gene-Embedding-Hub \
-            dist/space \
-            . \
-            --repo-type space \
-            --commit-message \
-              "Add ${EMBEDDING_ID} from HF PR #${HF_PR_NUMBER}"
-
-      - name: Report acceptance and close the Hugging Face PR
-        env:
-          HF_RESOURCE: datasets/BoevaLab/Gene-Embedding-Hub-contributions-staging
-          EMBEDDING_ID: ${{ steps.inspect.outputs.embedding_id }}
-          HF_PR_NUMBER: ${{ inputs.hf_pr_number }}
-        run: |
-          set -euo pipefail
-
-          hf_token="$(
-            bash scripts/exchange_hf_oidc_token.sh \
-              "$HF_RESOURCE"
-          )"
-
-          echo "::add-mask::$hf_token"
-          export HF_TOKEN="$hf_token"
-
-          cp \
-            dist/reports/validation_summary.md \
-            hf-pr-success-comment.md
-
-          cat >> hf-pr-success-comment.md <<EOF
-
-          ## Publication
-
-          The submission has been accepted and centrally archived as:
-
-          \`data/community_contributions/${EMBEDDING_ID}\`
-
-          The production Dataset registry and catalog Space were updated automatically.
-          EOF
-
-          HF_TOKEN="${{ secrets.HF_PR_TOKEN }}" \
-          python scripts/manage_hf_pr.py \
-            --repo-id \
-              BoevaLab/Gene-Embedding-Hub-contributions-staging \
-            --repo-type dataset \
-            --pr-number "$HF_PR_NUMBER" \
-            --comment-file hf-pr-success-comment.md \
-            --close \
-            --close-comment \
-              "Accepted and centrally archived. Thank you for the contribution."
-
+          python -m scripts.finalize_portal_run \
+            --repo-id BoevaLab/Gene-Embedding-Hub-contributions-staging \
+            --pr-number "$HF_PR_NUMBER" --requested-revision "$HF_PR_REVISION" \
+            --published "$PUBLISHED" --run-url "$RUN_URL"

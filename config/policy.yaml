@@ -15,6 +15,7 @@ matrix:
   require_two_dimensions: true
   fail_on_nan_or_infinity: true
   fail_on_zero_vectors: true
+  # These are legitimate in some representations: report them as INFO.
   fail_on_duplicate_vectors: false
   fail_on_constant_columns: false
 

@@ -22,6 +22,10 @@ def resolve_catalog_category(
         for category in categories
     }
 
+    for alias, canonical in modality_config.get("aliases", {}).items():
+        if canonical in categories:
+            canonical_by_casefold[str(alias).casefold()] = str(canonical)
+
     resolved = canonical_by_casefold.get(
         submitted.casefold()
     )

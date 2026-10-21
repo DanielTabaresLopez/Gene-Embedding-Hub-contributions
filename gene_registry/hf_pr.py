@@ -7,7 +7,7 @@ from typing import Any
 def extract_pr_commits(
     discussion_info: Mapping[str, Any],
 ) -> tuple[str, str]:
-    if not discussion_info.get("is_pull_request"):
+    if not discussion_info.get("is_pull_request", discussion_info.get("isPullRequest")):
         raise ValueError(
             "The selected Hugging Face discussion is not a Pull Request."
         )
@@ -23,18 +23,18 @@ def extract_pr_commits(
             "No commit event was found in the Hugging Face Pull Request."
         )
 
-    latest = commit_events[-1]
-    event_data = (
-        latest.get("_event", {})
-        .get("data", {})
-    )
+    first, latest = commit_events[0], commit_events[-1]
+    event_data = latest.get("data") or latest.get("_event", {}).get("data", {})
+    first_data = first.get("data") or first.get("_event", {}).get("data", {})
 
     head_sha = (
         latest.get("oid")
         or event_data.get("oid")
     )
 
-    parents = event_data.get("parents", [])
+    # Compare the final tree with the base of the whole PR. Using the parent
+    # of the LAST commit incorrectly rejects contributors who fix their YAML.
+    parents = first_data.get("parents", first.get("parents", []))
 
     if not head_sha:
         raise ValueError(

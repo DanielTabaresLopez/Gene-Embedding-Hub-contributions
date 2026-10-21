@@ -16,6 +16,7 @@ def build_parser() -> argparse.ArgumentParser:
     validate.add_argument("--schema-dir", required=True)
     validate.add_argument("--output-dir", required=True)
     validate.add_argument("--package-dir", default=None, help="Optional local package directory for contributor pre-checks")
+    validate.add_argument("--portal", action="store_true", help="Validate the four-file Hugging Face submission format")
     return parser
 
 
@@ -28,6 +29,8 @@ def main() -> int:
         schema_dir=args.schema_dir,
         output_dir=args.output_dir,
         package_dir=args.package_dir,
+        submission_schema_name="portal_submission.schema.json" if args.portal else "submission.schema.json",
+        submitted_metadata_required=not args.portal,
     )
     print(result.outcome)
     return 0 if result.outcome == "PASS" else 2

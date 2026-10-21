@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from huggingface_hub import HfApi
+from gene_registry.processing_state import marker, retry_decision, validator_fingerprint
 
 
 DISPATCHED_MARKER_PREFIX = (
@@ -46,7 +47,7 @@ def event_content(event: Any) -> str:
     if content:
         return str(content)
 
-    raw_event = get_value(event, "_event", {}) or {}
+    raw_event = get_value(event, "_event", {}) or event
     data = get_value(raw_event, "data", {}) or {}
     latest = get_value(data, "latest", {}) or {}
     raw = get_value(latest, "raw")
@@ -67,7 +68,7 @@ def latest_head_sha(details: Any) -> str:
 
         raw_event = (
             get_value(event, "_event", {})
-            or {}
+            or event
         )
 
         data = (
@@ -118,6 +119,8 @@ def discover_next_submission(
     api: HfApi,
     repo_id: str,
     repo_type: str,
+    validator_version: str | None = None,
+    now=None,
 ) -> dict[str, Any]:
     discussions = sorted(
         api.get_repo_discussions(
@@ -178,16 +181,21 @@ def discover_next_submission(
 
         head_sha = latest_head_sha(details)
 
-        if already_dispatched(
-            details,
-            head_sha,
-        ):
+        if validator_version:
+            events = [
+                {"content": event_content(event),
+                 "created_at": get_value(event, "created_at", get_value(event, "createdAt"))}
+                for event in (get_value(details, "events", []) or [])
+            ]
+            eligible, reason = retry_decision(events, head_sha, validator_version, now)
+        else:
+            eligible = not already_dispatched(details, head_sha)
+            reason = "current revision already dispatched"
+        if not eligible:
             skipped.append(
                 {
                     "pr_number": number,
-                    "reason": (
-                        "current revision already dispatched"
-                    ),
+                    "reason": reason,
                     "head_sha": head_sha,
                 }
             )
@@ -217,9 +225,9 @@ def discover_next_submission(
                     "",
                 )
             ),
-            "marker": dispatched_marker(
-                head_sha
-            ),
+            "validator_version": validator_version,
+            "marker": (marker("dispatched", head_sha, validator_version)
+                       if validator_version else dispatched_marker(head_sha)),
             "skipped": skipped,
         }
 
@@ -261,6 +269,7 @@ def main() -> int:
         api=api,
         repo_id=args.repo_id,
         repo_type=args.repo_type,
+        validator_version=validator_fingerprint(),
     )
 
     output = Path(args.output)

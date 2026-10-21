@@ -1,65 +1,19 @@
-# Contributing a gene embedding
+# Contributing an embedding
 
-Contributors submit directly to the library-owned Hugging Face
-Dataset as a Hugging Face Pull Request.
+Use the [Hugging Face staging uploader](https://huggingface.co/datasets/BoevaLab/Gene-Embedding-Hub-contributions-staging/upload/main)
+and select **Open as a pull request**.
 
-A GitHub account, GitHub fork, personal Dataset, and commit SHA
-are not required.
+Upload one folder named exactly as the unique `embedding_id`, containing:
 
-## 1. Prepare the package
+- `embeddings.npz`: one two-dimensional float32 array named `embeddings`;
+- `genes.tsv`: one row per matrix row, with unique unversioned `ensembl_gene_id` values;
+- `README.md`: documentation of the representation;
+- `submission.yaml`: fill in the current [template](portal_template/submission.yaml).
 
-Create one uniquely named folder:
+The [completed example](portal_template/submission.example.yaml) describes the
+existing ESM-2 catalogue entry. Replace its ID and contents for your own embedding.
+`metadata.json` is generated automatically after validation.
 
-```text
-<embedding_id>/
-├── embeddings.npz
-├── genes.tsv
-├── metadata.json
-├── README.md
-└── submission.yaml
-```
-
-Start from `portal_template/submission.yaml`.
-
-The embedding ID must contain 3–80 lowercase letters, numbers,
-dots, underscores, or hyphens and must begin with a letter or
-number.
-
-## 2. Upload to Hugging Face
-
-Upload the folder under:
-
-```text
-incoming/<embedding_id>/
-```
-
-Select **Open as a pull request**. Do not commit directly to
-`main`.
-
-Ensure that the Pull Request is Open or Ready for review rather
-than Draft.
-
-## 3. Validation and publication
-
-The trusted GitHub workflow inspects the proposed repository tree
-and validates the five-file package.
-
-A strict PASS is copied into the central Dataset under:
-
-```text
-data/embeddings/<embedding_id>/
-```
-
-The community registry and static Space catalog are then updated.
-The raw `incoming/` proposal is closed without being merged into
-`main`.
-
-Failed submissions are not published.
-
-## 4. Privacy
-
-Do not upload personal email addresses, credentials, access
-tokens, patient information, patient-level data, or other
-sensitive material.
-
-See `docs/HUGGINGFACE_SUBMISSION.md` for the complete guide.
+Read [the submission guide](docs/HUGGINGFACE_SUBMISSION.md) for categories,
+identifier mapping, corrections and diagnostics. Accepted packages are stored in
+`data/community_contributions/<embedding_id>/` and added to the current catalogue.

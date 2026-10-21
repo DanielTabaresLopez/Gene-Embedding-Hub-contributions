@@ -1,0 +1,66 @@
+# Upload this file with embeddings.npz, genes.tsv and README.md.
+# The folder name must equal embedding_id and the ID must be new.
+# Name, category and description populate the catalogue cards.
+# Gene count, dimensions and coverage are computed from your files.
+# metadata.json is generated automatically; do not fill in those counts here.
+
+schema_version: 1
+embedding_id: replace_with_unique_embedding_id
+display_name: Replace with the displayed embedding name
+
+# Optional. The Hugging Face username is recorded automatically.
+# contributor:
+#   name: Replace with contributor name
+#   affiliation: Replace with institution or organization
+
+scientific:
+  # Current catalogue categories (case-insensitive):
+  # Biomedical text, DNA sequence, Expression, Functional,
+  # Knowledge graph, Multimodal, Networks, Protein sequence,
+  # Regulatory genomics, RNA sequence, Single-cell.
+  # Legacy labels are mapped to the current names; other values use Other.
+  category: Replace with the category
+
+  # Specific free-text description of the representation,
+  # e.g. protein sequence, single-cell transcriptomics,
+  # regulatory activity, or a biological knowledge graph.
+  modality: Replace with the modality
+
+  # Describe the embedding and the biological information
+  # represented by it.
+  description: Replace with the embedding description
+
+  # Optional scientific details:
+  # original_method: Replace with the model or generation method
+  # model_checkpoint: Replace with checkpoint or version
+  # source_publication: Replace with a DOI or publication URL
+
+provenance:
+  species: Homo sapiens
+  identifier_before_mapping: Replace with the original identifier type
+  # Explain how the original identifiers were converted or aligned
+  # to the Ensembl gene IDs in genes.tsv, including how missing or
+  # duplicate mappings were handled.
+  mapping_method: Replace with the mapping method
+
+  # Optional provenance details:
+  # embedding_generated_by: Replace with model, software, or authors
+  # input_data_source: Replace with the original data source
+  # input_data_release: Replace with version or release
+  # pooling_strategy: Replace with pooling strategy
+
+licensing:
+  # Mandatory confirmation.
+  redistribution_allowed: true
+
+  # Optional when known:
+  # source_license: cc-by-4.0
+  # terms_url: https://creativecommons.org/licenses/by/4.0/
+
+attestations:
+  information_is_accurate: true
+  rights_to_redistribute: true
+  no_sensitive_human_data: true
+  no_patient_level_data: true
+  source_terms_reviewed: true
+  acceptance_of_automatic_checks: true

@@ -396,28 +396,33 @@ def validate_package(
     result.add("matrix.dtype", _status(matrix.dtype == required_dtype), f"Matrix dtype is {required_dtype}", str(matrix.dtype))
     result.add("matrix.numeric", _status(np.issubdtype(matrix.dtype, np.floating)), "Matrix has a floating numeric dtype", str(matrix.dtype))
 
+    if any(check.status == "FAIL" for check in result.checks):
+        return _finish(result, policy)
+
     finite = np.isfinite(matrix)
     nonfinite_count = int(matrix.size - finite.sum())
     result.add("matrix.finite", _status(nonfinite_count == 0), "Matrix contains no NaN or infinite values", nonfinite_count)
-    zero_rows = int(np.count_nonzero(np.linalg.norm(matrix, axis=1) == 0))
-    zero_status = "FAIL" if policy["matrix"]["fail_on_zero_vectors"] else "WARNING"
+    if nonfinite_count:
+        return _finish(result, policy)
+    zero_rows = int(np.count_nonzero(np.all(matrix == 0, axis=1)))
+    zero_status = "FAIL" if policy["matrix"]["fail_on_zero_vectors"] else "INFO"
     result.add("matrix.zero_vectors", _status(zero_rows == 0, zero_status), "Matrix contains no zero vectors", zero_rows)
 
     column_min = np.min(matrix, axis=0)
     column_max = np.max(matrix, axis=0)
     constant_columns = int(np.count_nonzero(column_min == column_max))
-    constant_status = "FAIL" if policy["matrix"]["fail_on_constant_columns"] else "WARNING"
-    result.add("matrix.constant_columns", _status(constant_columns == 0, constant_status), "Matrix contains no constant columns", constant_columns)
+    constant_status = "FAIL" if policy["matrix"]["fail_on_constant_columns"] else "INFO"
+    result.add("matrix.constant_columns", _status(constant_columns == 0, constant_status), "Constant columns are reported; rejection follows the configured policy", constant_columns)
 
     duplicate_rows = _duplicate_row_count(matrix)
-    duplicate_status = "FAIL" if policy["matrix"]["fail_on_duplicate_vectors"] else "WARNING"
-    result.add("matrix.duplicate_vectors", _status(duplicate_rows == 0, duplicate_status), "Matrix contains no exact duplicate vectors", duplicate_rows)
+    duplicate_status = "FAIL" if policy["matrix"]["fail_on_duplicate_vectors"] else "INFO"
+    result.add("matrix.duplicate_vectors", _status(duplicate_rows == 0, duplicate_status), "Repeated vectors are reported; rejection follows the configured policy", duplicate_rows)
 
     readme_size = (package_dir / "README.md").stat().st_size
     result.add("readme.nonempty", _status(readme_size >= 200), "README.md contains substantive documentation", readme_size)
 
     checksums = {name: sha256_file(package_dir / name) for name in required}
-    norms = np.linalg.norm(matrix, axis=1)
+    norms = np.linalg.norm(matrix.astype(np.float64), axis=1)
     result.summary.update({
         "embedding_id": submission["embedding_id"],
         "display_name": submission["display_name"],

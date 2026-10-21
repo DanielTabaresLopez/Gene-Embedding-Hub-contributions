@@ -17,6 +17,8 @@ from gene_registry.embedding_fields import (
     submission_modality,
 )
 from gene_registry.report import write_report
+from gene_registry.models import ValidationResult
+from gene_registry.util import sha256_file
 from gene_registry.service import run_validation
 from gene_registry.submission import (
     load_and_validate_submission,
@@ -100,9 +102,7 @@ def build_generated_metadata(
     metadata: dict[str, Any] = {
         "embedding_id": submission["embedding_id"],
         "display_name": submission["display_name"],
-        "category": submission_category(
-            submission
-        ),
+        "category": result_summary.get("catalog_category", submission_category(submission)),
         "modality": submission_modality(
             submission
         ),
@@ -256,8 +256,19 @@ def main() -> int:
         required=True,
     )
 
+    parser.add_argument("--hf-pr-revision", default=None)
     args = parser.parse_args()
+    try:
+        return prepare(args)
+    except Exception as exc:
+        result = ValidationResult(outcome="ERROR")
+        result.add("release.error", "FAIL", f"{type(exc).__name__}: {exc}")
+        write_report(result, Path(args.output_dir) / "reports")
+        print("Release preparation error:", exc)
+        return 3
 
+
+def prepare(args: argparse.Namespace) -> int:
     project = load_yaml(args.project)
     modalities = load_yaml(args.modalities)
 
@@ -276,27 +287,10 @@ def main() -> int:
     schema_dir = Path(args.schema_dir)
     output = Path(args.output_dir)
 
-    submission = load_and_validate_submission(
-        submission_path,
-        schema_dir / "portal_submission.schema.json",
-    )
-
-    embedding_id = submission["embedding_id"]
-
-    if package_dir.name != embedding_id:
-        raise ValueError(
-            "The package folder name must equal embedding_id: "
-            f"{package_dir.name!r} != {embedding_id!r}"
-        )
-
-    if output.exists():
-        shutil.rmtree(output)
-
     reports_dir = output / "reports"
-    reports_dir.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
+    if output.exists():
+        raise ValueError("Use a fresh output directory for each release attempt")
+    reports_dir.mkdir(parents=True)
 
     result = run_validation(
         submission_path=submission_path,
@@ -310,6 +304,19 @@ def main() -> int:
         ),
         submitted_metadata_required=False,
     )
+
+    if result.outcome != "PASS":
+        return 2
+    submission = load_and_validate_submission(
+        submission_path, schema_dir / "portal_submission.schema.json"
+    )
+    embedding_id = submission["embedding_id"]
+    if package_dir.name != embedding_id:
+        result.add("package.folder", "FAIL",
+                   f"Folder {package_dir.name!r} must equal embedding_id {embedding_id!r}")
+        result.outcome = "FAIL"
+        write_report(result, reports_dir)
+        return 2
 
     submitted_category = submission_category(
         submission
@@ -405,32 +412,32 @@ def main() -> int:
         "checksums_sha256"
     ]["embeddings.npz"]
 
-    if any(
-        entry.get("embedding_id") == embedding_id
-        for entry in registry
-    ):
-        raise ValueError(
-            "Embedding ID already exists in registry: "
-            f"{embedding_id}"
-        )
-
-    if any(
-        entry.get("embeddings_sha256") == checksum
-        for entry in registry
-    ):
-        raise ValueError(
-            "The exact embeddings.npz checksum "
-            "is already registered."
-        )
-
-    if any(
-        entry.get("id") == embedding_id
-        for entry in catalog
-    ):
-        raise ValueError(
-            "Embedding ID already exists in catalog: "
-            f"{embedding_id}"
-        )
+    package_checksums = dict(result.summary["checksums_sha256"])
+    package_checksums["submission.yaml"] = sha256_file(submission_path)
+    registered = next((e for e in registry if e.get("embedding_id") == embedding_id), None)
+    current_entry = next((e for e in catalog if e.get("id") == embedding_id), None)
+    resumable = bool(
+        registered and args.hf_pr_revision
+        and registered.get("source_revision") == args.hf_pr_revision
+        and registered.get("source_pr_number") == args.hf_pr_number
+        and registered.get("package_checksums_sha256") == package_checksums
+    )
+    conflicts = []
+    if registered and not resumable:
+        conflicts.append("Embedding ID already exists in registry with a different or unverifiable submission")
+    if current_entry and not resumable:
+        conflicts.append("Embedding ID already exists in catalog")
+    if any(e.get("embeddings_sha256") == checksum and e.get("embedding_id") != embedding_id for e in registry):
+        conflicts.append("The exact embeddings.npz checksum is already registered")
+    if conflicts:
+        for message in conflicts:
+            result.add("release.conflict", "FAIL", message)
+        result.outcome = "FAIL"
+        write_report(result, reports_dir)
+        return 2
+    if resumable:
+        result.add("release.resume", "INFO", "Resuming the same PR revision and identical package after an earlier attempt")
+        write_report(result, reports_dir)
 
     package_path = (
         f"{project['dataset_package_root'].strip('/')}/"
@@ -449,12 +456,8 @@ def main() -> int:
         exist_ok=True,
     )
 
-    # The downloaded PR package is no longer needed separately
-    # after validation, so moving it avoids a second local copy.
-    shutil.move(
-        str(package_dir),
-        str(package_target),
-    )
+    # Preserve the contributor's local input during preflight/mock tests.
+    shutil.copytree(package_dir, package_target)
 
     shutil.copy2(
         reports_dir / "validation_report.json",
@@ -471,9 +474,7 @@ def main() -> int:
         package_path,
     )
 
-    accepted_at = datetime.now(
-        timezone.utc
-    ).isoformat()
+    accepted_at = (registered or {}).get("accepted_at_utc") or datetime.now(timezone.utc).isoformat()
 
     generated_metadata = build_generated_metadata(
         submission=submission,
@@ -540,9 +541,7 @@ def main() -> int:
             "huggingface_pull_request"
         ),
         "source_dataset": project["hf_submission_dataset_id"],
-        "source_revision": (
-            f"refs/pr/{args.hf_pr_number}"
-        ),
+        "source_revision": args.hf_pr_revision or f"refs/pr/{args.hf_pr_number}",
         "source_pr_number": args.hf_pr_number,
         "source_pr_author": args.hf_pr_author,
         "source_pr_url": pr_url,
@@ -574,6 +573,8 @@ def main() -> int:
             "huggingface_pull_request"
         ),
         "source_pr_number": args.hf_pr_number,
+        "source_revision": args.hf_pr_revision or f"refs/pr/{args.hf_pr_number}",
+        "package_checksums_sha256": package_checksums,
         "submitted_category": (
             submitted_category
         ),
@@ -604,7 +605,8 @@ def main() -> int:
         "accepted_at_utc": accepted_at,
     }
 
-    registry.append(registry_entry)
+    if not registered:
+        registry.append(registry_entry)
 
     registry.sort(
         key=lambda entry: entry["embedding_id"]
@@ -655,74 +657,72 @@ def main() -> int:
                 }
             )
 
-    catalog.append(
-        {
-            "id": embedding_id,
-            "name": submission["display_name"],
-            "contributor_name": contributor_name,
-            "contributor_affiliation": (
-                contributor_affiliation
-            ),
-            "contributor_hf_username": (
-                args.hf_pr_author
-            ),
-            "category": catalog_category,
-            "category_source": (
-                "community_submission"
-                if recognized
-                else "fallback_other"
-            ),
-            "submitted_category": (
-                submitted_category
-            ),
-            "modality": submitted_modality,
-            "algorithm": catalog_algorithm,
-            "description": submission[
-                "scientific"
-            ]["description"],
-            "n_genes": result.summary["n_genes"],
-            "n_dims": result.summary[
-                "n_dimensions"
-            ],
-            "coverage_pct": round(
-                100
-                * result.summary[
-                    "master_coverage_fraction"
+    if current_entry is None:
+        catalog.append(
+            {
+                "id": embedding_id,
+                "name": submission["display_name"],
+                "contributor_name": contributor_name,
+                "contributor_affiliation": (
+                    contributor_affiliation
+                ),
+                "contributor_hf_username": (
+                    args.hf_pr_author
+                ),
+                "category": catalog_category,
+                "category_source": (
+                    "community_submission"
+                    if recognized
+                    else "fallback_other"
+                ),
+                "submitted_category": (
+                    submitted_category
+                ),
+                "modality": submitted_modality,
+                "algorithm": catalog_algorithm,
+                "description": submission[
+                    "scientific"
+                ]["description"],
+                "n_genes": result.summary["n_genes"],
+                "n_dims": result.summary[
+                    "n_dimensions"
                 ],
-                1,
-            ),
-            "trace": result.summary["trace"],
-            "trace_gene": result.summary[
-                "trace_gene"
-            ],
-            "qc_status": "AUTO_PASS",
-            "license": catalog_license,
-            "dataset_path": package_path,
-            "package_url": package_url,
-            "metadata_url": metadata_url,
-            "source_dataset": project[
-                "hf_dataset_id"
-            ],
-            "source_revision": "main",
-            "source_repo_type": "dataset",
-            "storage_mode": storage_mode,
-            "availability_status": (
-                "centrally_archived"
-            ),
-            "validation_path": package_path,
-            "community_contribution": True,
-        }
-    )
+                "coverage_pct": round(
+                    100
+                    * result.summary[
+                        "master_coverage_fraction"
+                    ],
+                    1,
+                ),
+                "trace": result.summary["trace"],
+                "trace_gene": result.summary[
+                    "trace_gene"
+                ],
+                "qc_status": "AUTO_PASS",
+                "license": catalog_license,
+                "dataset_path": package_path,
+                "package_url": package_url,
+                "metadata_url": metadata_url,
+                "source_dataset": project[
+                    "hf_dataset_id"
+                ],
+                "source_revision": "main",
+                "source_repo_type": "dataset",
+                "storage_mode": storage_mode,
+                "availability_status": (
+                    "centrally_archived"
+                ),
+                "validation_path": package_path,
+                "community_contribution": True,
+            }
+        )
 
     catalog.sort(
         key=lambda entry: entry["name"].casefold()
     )
 
-    shutil.copytree(
-        args.space_source,
-        space_payload,
-        dirs_exist_ok=True,
-    )
+    # Routine contributions publish data only. The interface is deployed separately.
+    space_payload.mkdir(parents=True, exist_ok=True)
 
     write_json(
         space_payload
@@ -739,6 +739,8 @@ def main() -> int:
         space_payload / "release_summary.json",
         {
             "catalog_count": len(catalog),
+            "core_count": len(catalog) - community_count,
+            "community_count": community_count,
             "community_registry_count": len(registry),
             "community_catalog_count": community_count,
             "latest_embedding_id": embedding_id,
@@ -757,6 +759,8 @@ def main() -> int:
             "package_path": package_path,
             "package_url": package_url,
             "validation_outcome": result.outcome,
+            "resumed": resumable,
+            "source_revision": args.hf_pr_revision,
         },
     )
 

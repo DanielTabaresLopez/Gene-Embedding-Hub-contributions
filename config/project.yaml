@@ -1,13 +1,10 @@
-# Replace these values before enabling production publication.
 github_repository: DanielTabaresLopez/Gene-Embedding-Hub-contributions
 hf_submission_dataset_id: BoevaLab/Gene-Embedding-Hub-contributions-staging
 hf_dataset_id: BoevaLab/Gene-Embedding-Hub-dataset
 hf_space_id: BoevaLab/Gene-Embedding-Hub
-
 core_dataset_id: BoevaLab/Gene-Embedding-Hub-dataset
 core_dataset_revision: 326b257a20e73df337ece40bb82401e277851f5b
-core_expected_count: 68
-
+core_expected_count: 67
 dataset_package_root: data/community_contributions
 portal_submission_root: .
 portal_storage_mode: central_hf_dataset
@@ -17,3 +14,13 @@ dataset_registry_file: data/community_contributions/community_registry.json
 dataset_community_manifest_file: data/community_contributions/community_manifest.csv
 space_catalog_file: catalog.json
 master_gene_count: 20097
+core_source_revisions:
+- 313916507a8aea71b3e931b54104cedef19670a6
+- 326b257a20e73df337ece40bb82401e277851f5b
+- 36c87f4579348d070ba9b1a5fe79f0ac90c46b66
+- f703e997fa18de926e750ff9ec4ad452cbdd8184
+
+# Historical synthetic demo removed from the curated live catalogue.
+# Keep its source record, but do not resurrect it when initializing a registry.
+retired_legacy_submission_ids:
+  - external_reference_smoke_20260727_v1

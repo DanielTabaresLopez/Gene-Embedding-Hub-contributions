@@ -391,12 +391,6 @@ def main() -> int:
             key=lambda item: item["name"].casefold()
         )
 
-        shutil.copytree(
-            args.space_source,
-            output / "space",
-            dirs_exist_ok=True,
-        )
-
         write_json(
             output
             / "space"

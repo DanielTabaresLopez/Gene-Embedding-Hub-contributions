@@ -1,3 +1,9 @@
+# Upload this file with embeddings.npz, genes.tsv and README.md.
+# The folder name must equal embedding_id and the ID must be new.
+# Name, category and description populate the catalogue cards.
+# Gene count, dimensions and coverage are computed from your files.
+# metadata.json is generated automatically; do not fill in those counts here.
+
 schema_version: 1
 embedding_id: replace_with_unique_embedding_id
 display_name: Replace with the displayed embedding name
@@ -8,10 +14,11 @@ display_name: Replace with the displayed embedding name
 #   affiliation: Replace with institution or organization
 
 scientific:
-  # Choose one of the categories from the catalog:
-  # DNA, Expression, Functional Genomics, Knowledge, Literature,
-  # Multimodal, Network, Protein, RNA, Regulatory, or Single-cell.
-  # Any other value will be displayed under "Other".
+  # Current catalogue categories (case-insensitive):
+  # Biomedical text, DNA sequence, Expression, Functional,
+  # Knowledge graph, Multimodal, Networks, Protein sequence,
+  # Regulatory genomics, RNA sequence, Single-cell.
+  # Legacy labels are mapped to the current names; other values use Other.
   category: Replace with the category
 
   # Specific free-text description of the representation,

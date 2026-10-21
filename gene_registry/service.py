@@ -29,10 +29,18 @@ def run_validation(
     policy = load_yaml(policy_path)
     schema_dir = Path(schema_dir)
 
-    submission = load_and_validate_submission(
-        submission_path,
-        schema_dir / submission_schema_name,
-    )
+    try:
+        if Path(submission_path).stat().st_size > int(policy["limits"]["max_submission_yaml_bytes"]):
+            raise ValueError("submission.yaml exceeds the configured size limit")
+        submission = load_and_validate_submission(
+            submission_path,
+            schema_dir / submission_schema_name,
+        )
+    except Exception as exc:
+        result = ValidationResult(outcome="FAIL")
+        result.add("submission.schema", "FAIL", str(exc))
+        write_report(result, output_dir)
+        return result
 
     master_genes = {
         line.strip()
@@ -63,19 +71,19 @@ def run_validation(
                 temporary,
             )
 
-        result = validate_package(
-            package_dir=package_dir,
-            submission=submission,
-            policy=policy,
-            master_genes=master_genes,
-            metadata_schema=(
-                schema_dir / "metadata.schema.json"
-            ),
-            metadata_required=(
-                submitted_metadata_required
-            ),
-            candidate_info=candidate_info,
-        )
+        try:
+            result = validate_package(
+                package_dir=package_dir,
+                submission=submission,
+                policy=policy,
+                master_genes=master_genes,
+                metadata_schema=schema_dir / "metadata.schema.json",
+                metadata_required=submitted_metadata_required,
+                candidate_info=candidate_info,
+            )
+        except Exception as exc:
+            result = ValidationResult(outcome="FAIL")
+            result.add("package.read", "FAIL", f"Could not validate the package: {exc}")
 
         result.provenance["validator_environment"] = {
             "python": platform.python_version(),

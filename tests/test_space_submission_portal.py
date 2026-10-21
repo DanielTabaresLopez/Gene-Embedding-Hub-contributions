@@ -99,9 +99,8 @@ def test_all_submission_instructions_are_on_main_page() -> None:
         < step_2_position
     )
 
-    assert not Path(
-        "space/contribute.html"
-    ).exists()
+    assert "index.html#contribute" in read("space/contribute.html")
+    assert "metadata.json" not in read("space/contribute.html")
 
 
 def test_unwanted_space_sections_are_absent() -> None:
@@ -267,7 +266,7 @@ def test_command_line_alternative_uses_concrete_example() -> None:
     assert explanation in command_section
 
     assert (
-        "<code>esm2_v1_1</code> with the name of your existing"
+        "<code>my_embedding_v1</code> with the name of your existing"
         in command_section
     )
 
@@ -281,8 +280,8 @@ def test_command_line_alternative_uses_concrete_example() -> None:
         < command_section.index("<pre><code>")
     )
 
-    assert "./esm2_v1_1" in command_section
-    assert command_section.count("esm2_v1_1") == 3
+    assert "./my_embedding_v1" in command_section
+    assert command_section.count("my_embedding_v1") == 3
 
     assert (
         '--commit-message "Submit gene embedding"'

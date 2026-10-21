@@ -1,16 +1,23 @@
 schema_version: 1
-
 categories:
-  - DNA
-  - Expression
-  - Functional Genomics
-  - Knowledge
-  - Literature
-  - Multimodal
-  - Network
-  - Protein
-  - RNA
-  - Regulatory
-  - Single-cell
-
+- Biomedical text
+- DNA sequence
+- Expression
+- Functional
+- Knowledge graph
+- Multimodal
+- Networks
+- Protein sequence
+- RNA sequence
+- Regulatory genomics
+- Single-cell
+aliases:
+  DNA: DNA sequence
+  Functional Genomics: Functional
+  Knowledge: Knowledge graph
+  Literature: Biomedical text
+  Network: Networks
+  Protein: Protein sequence
+  RNA: RNA sequence
+  Regulatory: Regulatory genomics
 fallback_category: Other

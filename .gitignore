@@ -15,3 +15,8 @@ dist/
 # Generated Dataset audit and catalog reports
 reports/*.json
 reports/*.txt
+
+# Local contribution repair environments and outputs
+.venv-*/
+geh-smoke-output/
+.geh-repair-backups/
