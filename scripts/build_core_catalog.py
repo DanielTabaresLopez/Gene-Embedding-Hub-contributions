@@ -156,7 +156,7 @@ def derive_category(
 
     rules: list[tuple[str, tuple[str, ...]]] = [
         (
-            "Single-cell",
+            "Single-cell expression",
             (
                 "single-cell",
                 "single_cell",
@@ -204,7 +204,7 @@ def derive_category(
             ),
         ),
         (
-            "Expression",
+            "Bulk expression",
             (
                 "expression",
                 "transcriptom",
@@ -567,6 +567,14 @@ def main() -> int:
         entry.update(
             overrides.get(embedding_id, {})
         )
+
+        # Historical package metadata can still contain the previous labels.
+        expression_labels = {
+            "Expression": "Bulk expression",
+            "Single-cell": "Single-cell expression",
+        }
+        for field in ("category", "modality"):
+            entry[field] = expression_labels.get(entry[field], entry[field])
 
         missing_fields = [
             field

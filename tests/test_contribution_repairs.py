@@ -35,6 +35,36 @@ def test_current_categories_and_legacy_aliases():
         assert resolve_catalog_category(alias, config) == (target, True)
 
 
+@pytest.mark.parametrize("category, modality, expected_category, expected_modality", [
+    ("Expression", "Expression", "Bulk expression", "Bulk expression"),
+    ("Single-cell", "Single-cell", "Single-cell expression", "Single-cell expression"),
+    ("Bulk expression", "Bulk expression", "Bulk expression", "Bulk expression"),
+    ("Single-cell expression", "Single-cell expression", "Single-cell expression", "Single-cell expression"),
+    ("Single-cell", "Single-cell transcriptomic gene-token vectors", "Single-cell expression", "Single-cell transcriptomic gene-token vectors"),
+])
+def test_expression_labels_in_published_package(tmp_path, category, modality, expected_category, expected_modality):
+    package = make_mock_package(tmp_path / "inputs")
+    submission_file = package / "submission.yaml"
+    submission = yaml.safe_load(submission_file.read_text())
+    submission["scientific"].update(category=category, modality=modality)
+    submission_file.write_text(yaml.safe_dump(submission, sort_keys=False))
+    registry = tmp_path / "registry.json"
+    registry.write_text("[]\n")
+    output = tmp_path / "release"
+    assert prepare(release_args(package, registry, Path("space/catalog.json"), output)) == 0
+    catalog = json.loads((output / "space/catalog.json").read_text())
+    row = next(entry for entry in catalog if entry["id"] == package.name)
+    assert (row["category"], row["modality"]) == (expected_category, expected_modality)
+    dataset = output / "dataset/data/community_contributions"
+    metadata = json.loads((dataset / package.name / "metadata.json").read_text())
+    assert (metadata["category"], metadata["modality"]) == (expected_category, expected_modality)
+    published_registry = json.loads((dataset / "community_registry.json").read_text())[0]
+    assert published_registry["modality"] == expected_modality
+    assert published_registry["submitted_modality"] == modality
+    assert published_registry["submitted_category"] == category
+    assert (dataset / package.name / "submission.yaml").read_bytes() == submission_file.read_bytes()
+
+
 def test_legitimate_duplicate_vectors_and_constant_columns(tmp_path):
     package = make_mock_package(tmp_path)
     result = validate(package, tmp_path / "report")

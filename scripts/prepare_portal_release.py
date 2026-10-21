@@ -103,8 +103,8 @@ def build_generated_metadata(
         "embedding_id": submission["embedding_id"],
         "display_name": submission["display_name"],
         "category": result_summary.get("catalog_category", submission_category(submission)),
-        "modality": submission_modality(
-            submission
+        "modality": result_summary.get(
+            "catalog_modality", submission_modality(submission)
         ),
         "description": scientific["description"],
         "species": provenance["species"],
@@ -333,6 +333,12 @@ def prepare(args: argparse.Namespace) -> int:
         )
     )
 
+    catalog_modality, modality_recognized = resolve_catalog_category(
+        submitted_modality, modalities
+    )
+    if not modality_recognized:
+        catalog_modality = submitted_modality
+
     if recognized:
         result.add(
             "catalog.category",
@@ -371,6 +377,7 @@ def prepare(args: argparse.Namespace) -> int:
                 submitted_modality
             ),
             "catalog_category": catalog_category,
+            "catalog_modality": catalog_modality,
             "category_fallback_applied": (
                 not recognized
             ),
@@ -585,7 +592,7 @@ def prepare(args: argparse.Namespace) -> int:
         "category_fallback_applied": (
             not recognized
         ),
-        "modality": submitted_modality,
+        "modality": catalog_modality,
         "n_genes": result.summary["n_genes"],
         "n_dimensions": result.summary[
             "n_dimensions"
@@ -678,7 +685,7 @@ def prepare(args: argparse.Namespace) -> int:
                 "submitted_category": (
                     submitted_category
                 ),
-                "modality": submitted_modality,
+                "modality": catalog_modality,
                 "algorithm": catalog_algorithm,
                 "description": submission[
                     "scientific"

@@ -59,7 +59,7 @@ mahi_all_contexts_mean:
   description: Mahi gene representation formed by averaging embeddings across all available
     non-global tissue and cell contexts.
 scgpt_pancancer:
-  category: Single-cell
+  category: Single-cell expression
   category_source: manual
   modality: single-cell transcriptomic foundation model / pan-cancer gene-token embedding
   description: Gene-token representation derived from a pan-cancer scGPT single-cell transcriptomic

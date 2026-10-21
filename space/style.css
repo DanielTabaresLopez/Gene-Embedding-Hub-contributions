@@ -148,7 +148,8 @@ html {
   --category-badge: #dae9fc;
 }
 
-.category-expression {
+.category-expression,
+.category-bulk-expression {
   --category-background: #fff4e9;
   --category-border: #edc69a;
   --category-accent: #b96512;
@@ -211,7 +212,8 @@ html {
   --category-badge: #dedff8;
 }
 
-.category-single-cell {
+.category-single-cell,
+.category-single-cell-expression {
   --category-background: #fff0fa;
   --category-border: #e1b2d2;
   --category-accent: #9f3e7f;
@@ -971,7 +973,8 @@ body::before {
   --category-badge: #dae9fc;
 }
 
-.category-expression {
+.category-expression,
+.category-bulk-expression {
   --category-background: #fff4e9;
   --category-border: #edc69a;
   --category-accent: #b96512;
@@ -1036,7 +1039,8 @@ body::before {
   --category-badge: #dedff8;
 }
 
-.category-single-cell {
+.category-single-cell,
+.category-single-cell-expression {
   --category-background: #fff0fa;
   --category-border: #e1b2d2;
   --category-accent: #9f3e7f;

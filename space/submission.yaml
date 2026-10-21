@@ -15,9 +15,9 @@ display_name: Replace with the displayed embedding name
 
 scientific:
   # Current catalogue categories (case-insensitive):
-  # Biomedical text, DNA sequence, Expression, Functional,
+  # Biomedical text, Bulk expression, DNA sequence, Functional,
   # Knowledge graph, Multimodal, Networks, Protein sequence,
-  # Regulatory genomics, RNA sequence, Single-cell.
+  # Regulatory genomics, RNA sequence, Single-cell expression.
   # Legacy labels are mapped to the current names; other values use Other.
   category: Replace with the category
 

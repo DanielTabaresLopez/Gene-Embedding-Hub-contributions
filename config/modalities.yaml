@@ -1,8 +1,8 @@
 schema_version: 1
 categories:
 - Biomedical text
+- Bulk expression
 - DNA sequence
-- Expression
 - Functional
 - Knowledge graph
 - Multimodal
@@ -10,8 +10,10 @@ categories:
 - Protein sequence
 - RNA sequence
 - Regulatory genomics
-- Single-cell
+- Single-cell expression
 aliases:
+  Expression: Bulk expression
+  Single-cell: Single-cell expression
   DNA: DNA sequence
   Functional Genomics: Functional
   Knowledge: Knowledge graph

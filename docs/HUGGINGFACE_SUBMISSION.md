@@ -72,8 +72,8 @@ Change the status to Open or Ready for review before processing.
 Recommended catalog categories are:
 
 - Biomedical text
+- Bulk expression
 - DNA sequence
-- Expression
 - Functional
 - Knowledge graph
 - Multimodal
@@ -81,11 +81,17 @@ Recommended catalog categories are:
 - Protein sequence
 - RNA sequence
 - Regulatory genomics
-- Single-cell
+- Single-cell expression
 
-Matching is case-insensitive. Previous category labels are translated to their current names. A different value is accepted but
-displayed under `Other`. The originally submitted value is
-preserved in the provenance and validation report.
+Matching is case-insensitive. Previous category labels are translated to their
+current names, including
+`Expression` to `Bulk expression` and `Single-cell` to `Single-cell expression`.
+A different category is accepted but displayed under `Other`.
+The originally submitted values are preserved in the provenance and validation
+report.
+
+Modality values that exactly match a known category or alias are normalized
+too; more specific free-text modality descriptions are preserved.
 
 ## Validation and central storage
 
